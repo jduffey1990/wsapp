@@ -13,7 +13,9 @@
         Retail matchmaking built around brand DNA.
       </p>
       <div class="mt-6 d-flex ga-3 justify-center">
-        <v-btn variant="flat" class="cta-btn" color="brand-primary" href="/login">Get Started</v-btn>
+        <<v-btn variant="flat" class="cta-btn" color="brand-primary" :to="{ name: 'Login' }">
+          Get Started
+        </v-btn>
         <v-btn variant="outlined" class="cta-outline" color="brand-success" @click="seeVideo()">See How It Works</v-btn>
       </div>
     </div>
