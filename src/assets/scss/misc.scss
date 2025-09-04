@@ -1,0 +1,171 @@
+// misc.scss
+
+hr {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+p, li {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 300;  /* Light weight for text */
+  line-height: 130%;
+}
+
+h1, .text-h1 {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 58px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%;
+}
+
+h2, .text-h2 {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "halyard-display" !important;
+  font-size: 46px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%;
+}
+
+h3, .text-h3 {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 38px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: -0.5px;
+}
+
+h4, .text-h4, .v-alert-title, .v-stepper-header, .survey_header, .group_header {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+}
+
+h5, .text-h5 {
+  color: var(--Primary-Dark, #07152A);
+  leading-trim: both;
+  text-edge: cap;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 22px !important;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+  letter-spacing: 0.5px;
+}
+
+.v-field {
+  color: var(--Primary-Dark, #07152A);
+  leading-trim: both;
+  text-edge: cap;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px !important;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+  letter-spacing: 0.5px;
+}
+
+h6, .text-h6, .v-card, .v-alert__content,  {
+  color: var(--Primary-Dark, #07152A);
+  leading-trim: both;
+  text-edge: cap;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 110%;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.small, .v-btn, .v-overlay, .v-data-table, .v-checkbox, .v-slider-track, .text-no-wrap, .v-row {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 130%;
+}
+
+.footer-text {
+  color: var(--Primary-Dark, #07152A);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px; /* Adjust the size as needed */
+  font-style: normal;
+  font-weight: 300;
+  line-height: 130%;
+}
+
+.v-sheet, .v-table {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.v-chip {
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px !important;
+}
+
+.v-btn {
+  border-radius: 50px;
+  box-shadow: none !important;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.v-btn:hover {
+  box-shadow: none !important;
+}
+
+.v-btn__content {
+  margin: 5px;
+}
+
+.secondary-btn {
+  background-color: #ffffff;
+  border: 2px solid #07152A;
+  color: #07152A; /* To set the text color to match the stroke */
+}
+
+.v-alert--density-default {
+  padding-bottom: 26px !important;
+}
+
+.v-container {
+  width: 100%;
+  padding: 16px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 960px) {
+  .v-container {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .v-container {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 1920px) {
+  .v-container {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 2560px) {
+  .v-container {
+    max-width: 90%;
+  }
+}

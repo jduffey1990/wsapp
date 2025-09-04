@@ -1,0 +1,38 @@
+{
+  "name": "busterbrackets",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@mdi/font": "7.0.96",
+    "@stripe/stripe-js": "^4.9.0",
+    "axios": "^1.3.6",
+    "chart.js": "^4.3.0",
+    "core-js": "^3.8.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.3",
+    "moment": "^2.30.1",
+    "openai": "^4.87.3",
+    "pinia": "^2.0.23",
+    "vue": "^3.2.13",
+    "vue-chartjs": "^5.3.1",
+    "vue-router": "^4.0.0",
+    "vue3-cookies": "^1.0.6",
+    "vuetify": "^3.9.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5",
+    "eslint": "^8.22.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "prettier": "3.5.3",
+    "sass": "^1.77",
+    "vite": "^5",
+    "vite-plugin-vuetify": "^2"
+  }
+}
