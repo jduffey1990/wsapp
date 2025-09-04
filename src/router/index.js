@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router';
+import {createRouter, createWebHistory, createWebHashHistory} from 'vue-router';
 import Login from '@/views/login-create/LoginPage.vue';
 import Dashboard from '@/views/dashboard/Dashboard.vue';
 import Product from '@/views/dashboard/products/Product.vue';
@@ -10,7 +10,7 @@ import Payment from "@/components/Payment";
 
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
     routes: [
         {
             path: '/',
