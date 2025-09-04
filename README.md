@@ -1,81 +1,105 @@
-# 🏀 BusterBrackets - [website](https://busterbrackets.com)
+# Vue 3 + Vite Wholesale Matchmaking App
 
-A lightweight Vue 3 app for building NCAA March Madness brackets. Built for fans who want to quickly generate printable or shareable brackets, this app was built just in time for the madness — but there's a whole roadmap for turning it into something bigger.
+A Vue 3 + Vite app that uses Vuetify, Vue Router, and Pinia. Based on the code you shared, it also includes a **mocked "Wholesale Matchmaking"** experience (product loader, CTA logic, and a sidebar of matches).
 
----
+## Requirements
 
-## 🚀 Run Locally
+* **Node.js ≥ 18** (Vite 5 requirement)
+* **Yarn** (commands below use Yarn)
 
-1. Install [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
-2. Clone this repository:
-   ```bash
-   git clone https://github.com/jduffey1990/busterbrackets-app-users.git
-   ```
-3. Install dependencies:
-   ```bash
-   yarn install
-   ```
-4. Set environment variables:
+## Getting Started
 
-   Make sure you create a `.env` file (and optionally a `.env.production` for deployment) in the root folder with the following:
+```bash
+# install deps
+yarn install
 
-   ```
-   VITE_BASE_URL=http://localhost:3000  # or your backend API URL
-   ```
+# start the dev server
+yarn dev
 
-5. Run the dev server:
-   ```bash
-   yarn dev
-   ```
+# build for production
+yarn build
 
-6. Visit the app at [http://localhost:5173](http://localhost:5173)
+# preview the production build locally
+yarn preview
 
----
+# lint & auto-fix
+yarn lint
+```
 
-## 🛠️ Development Pipeline
+Vite will print the local dev URL (typically `http://localhost:5173`).
 
-- This project uses Vite for blazing-fast frontend development.
-- ESLint and Prettier are set up for consistent code formatting and linting.
-- Vuetify is used for UI components.
-- Make sure `VITE_BASE_URL` is defined in `.env` or for production builds in the variables manager.
+## Tech Stack
 
----
+* **Vue 3**, **Vite 5**
+* **Vuetify 3** + **@mdi/font**
+* **Vue Router 4**, **Pinia 2**
+* **axios**, **moment**, **vue3-cookies**
+* Data viz & export available: **chart.js**, **vue-chartjs**, **html2canvas**, **jspdf**, **jspdf-autotable**
+* SDKs present (optional): **@stripe/stripe-js**, **openai**
+* Tooling: **eslint**, **eslint-plugin-vue**, **prettier**, **sass**, **vite-plugin-vuetify**
 
-## 🔗 Backend Repositories
+## Scripts (from `package.json`)
 
-This frontend connects to two backend microservices:
+| Script | What it does |
+|--------|--------------|
+| `yarn dev` | Run Vite dev server |
+| `yarn build` | Build for production |
+| `yarn preview` | Preview the production build |
+| `yarn lint` | ESLint with `--fix` (uses `.gitignore`) |
 
-- [Brackets Service (FastAPI)](https://github.com/jduffey1990/busterbrackets-app-brackets)
-- [Users & Authentication (FastAPI)](https://github.com/jduffey1990/busterbrackets-app-users)
+## Matchmaking Demo (from your snippet)
 
----
+This is a lightweight, mocked flow to showcase the sidebar and details panel.
 
-## 🧠 In Progress
+* **Product loading**: `loadProduct()` returns mocked products (with base64 images) and sets timestamps (`createdAt`, `lastEditedAt`) for CTA logic.
+* **CTA logic**:
+   * `updatedSinceLastRun` compares `product.lastEditedAt` with `matchStatus.lastRunAt`.
+   * `ctaLabel` is:
+      * `"Find Wholesale Matches"` if the product changed since last run
+      * `"Edit and Run Matchmaking"` otherwise (routes to `name: 'Dashboard'` with `{ editId, afterMatch }`)
+* **Running matchmaking**: `runMatchmaking()` simulates latency, then seeds a few matches and auto-selects the most recent one. A toast is shown via the injected `show()` function.
+* **Empty vs. populated state**: you can mock an empty sidebar for a specific product id if desired (e.g., `id=p_1002` → `matches=[]`; otherwise seed matches).
 
-Getting this project out in time for March Madness was a sprint to the buzzer — but there's more on the way:
+## Match object shape
 
-- **Password Update Functionality** – basic account management needs to be added securely for unverified users needing to change password.
-- **Bracket Editor** – currently, brackets are generated and locked to preserve bracket fidelity. Next year, a drag-and-drop editor is on the roadmap.
-- **Beyond Brackets** – I’d love to expand BusterBrackets into a hub for:
-  - College Basketball news
-  - Live tournament updates
-  - Social bracket sharing and engagement
+All matches are created by `mkMatch(storeName, ts, notes, score)` and include:
 
----
+```javascript
+{
+  id: `m_${Math.random().toString(36).slice(2)}`,
+  storeName,
+  createdAt: new Date(ts).toISOString(),
+  mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(storeName + ' store')}`,
+  address: '',
+  phone: '',
+  website: '',
+  category: 'Apparel',
+  buyerContact: '',
+  notes,
+  score
+}
+```
 
-## 📦 Tech Stack
-- Prod served by **AWS Amplify**
-- **Vue 3** + **Pinia**
-- **Vuetify 3**
-- **Vite**
-- **Stripe JS** (for payment integration)
-- **Axios** for API communication
-- **Moment.js**, **html2canvas**, **jspdf** for utility and PDF exporting
+If you want fuller mock records, you can extend `mkMatch` to accept optional overrides (address/phone/website/buyerContact/category) and merge them into the return object.
 
+## Environment Variables (optional)
 
----
+If you wire real services, Vite exposes variables prefixed with `VITE_`:
 
-## 📃 License
+```env
+# .env.local (not committed)
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
+VITE_OPENAI_API_KEY=sk-...
+```
 
-This project is private and currently not licensed for redistribution. Feel free to reach out for collaboration ideas!
+These are **not required** for the mocked flow.
 
+## Notes / Troubleshooting
+
+* Ensure **Node ≥ 18**.
+* If Vuetify styles don't load, verify the Vuetify plugin is registered and styles are imported in your app entry.
+* If routing is involved, check that the router mounts to `#app` and that routes/components are registered.
+
+## License
+
+Add your license here (e.g., MIT).
