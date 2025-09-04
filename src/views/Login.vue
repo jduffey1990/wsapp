@@ -260,14 +260,15 @@ const submitNewClient = async () => {
   newAccount.value.name = newAccount.value.firstName + " " + newAccount.value.lastName
 
   try {
-    const response = await $users.post('/create-user', newAccount.value);
-    if (response.status === 201) {
-      show({message: 'Thanks for creating an account with us. You will be redirected to login.'});
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1000);
-    }
-  } catch (error) {
+  const response = await $users.post('/create-user', newAccount.value)
+  if (response.status === 201) {
+    show({ message: 'Thanks for creating an account with us. You will be redirected to login.' })
+    setTimeout(() => {
+      // use push (keeps history) or replace (prevents going "Back" to the prior page)
+      router.push({ name: 'Login' })      // or: router.replace({ name: 'Login' })
+    }, 1000)
+  }
+} catch (error) {
 
     console.error("error", error)
 
