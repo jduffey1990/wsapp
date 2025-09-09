@@ -119,6 +119,44 @@
             </v-col>
           </v-row>
         </template>
+
+        <!-- STEP 7: Brand socials -->
+        <template v-else-if="stepIndex === 6">
+          <div class="text-h6 mb-2">Brand Social Media</div>
+          <div class="text-body-2 text-medium-emphasis mb-4">
+            Colors and tone help retailers present you correctly.
+          </div>
+          <v-row dense>
+            <v-col cols="12" sm="8">
+            <v-text-field
+              label="Instagram"
+              v-model="draft.socials.instagram"
+              placeholder="e.g., @yourbrand or https://instagram.com/yourbrand"
+              prepend-inner-icon="mdi-instagram"
+              clearable
+            />
+          </v-col>
+          <v-col cols="12" sm="8">
+            <v-text-field
+              label="Facebook"
+              v-model="draft.socials.facebook"
+              placeholder="e.g., yourbrandpage or https://facebook.com/yourbrandpage"
+              prepend-inner-icon="mdi-facebook"
+              clearable
+            />
+          </v-col>
+          <v-col cols="12" sm="8">
+            <v-text-field
+              label="LinkedIn"
+              v-model="draft.socials.linkedin"
+              placeholder="e.g., company/yourbrand or https://linkedin.com/company/yourbrand"
+              prepend-inner-icon="mdi-linkedin"
+              clearable
+            />
+          </v-col>
+        </v-row>
+
+        </template>
       </v-card-text>
 
       <v-divider />
@@ -158,7 +196,7 @@ const isOpen = computed({
 /* State */
 const saving = ref(false)
 const stepIndex = ref(0)
-const totalSteps = 6
+const totalSteps = 7
 
 /* Options */
 const priceTierOptions = ['Budget', 'Mid', 'Premium', 'Luxury']
@@ -173,6 +211,7 @@ const draft = reactive({
   target_markets: [],
   wholesale: { moq: '', lead_time: '', case_pack: '' },
   style: { primary_color: '', secondary_color: '', tone: '', packaging: '' },
+  socials: {instagram: '', facebook: '', linkedin: '' }
 })
 
 /* Hydrate draft when opened / profile changes */
@@ -193,6 +232,11 @@ function resetDraftFromProps () {
     secondary_color: src.style?.secondary_color || '',
     tone: src.style?.tone || '',
     packaging: src.style?.packaging || ''
+  }
+  draft.socials = {
+    instagram: src.socials?.instagram || '',
+    facebook: src.socials?.facebook || '',
+    linkedin: src.socials?.linkedin || ''
   }
   stepIndex.value = 0
 }

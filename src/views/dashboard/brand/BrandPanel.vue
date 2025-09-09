@@ -80,11 +80,22 @@
             </div>
             <div class="meta-line">
               <v-icon size="18" class="mr-2">mdi-email-outline</v-icon>
-              <span class="truncate">{{ profile.contact_email || 'Add contact email' }}</span>
+              <span class="truncate">{{ brand.contact_email || 'Add contact email' }}</span>
             </div>
             <div class="meta-line">
               <v-icon size="18" class="mr-2">mdi-map-marker-outline</v-icon>
-              <span class="truncate">{{ profile.hq_location || 'Add HQ location' }}</span>
+              <template v-if="brand.hq_location">
+                <a
+                  class="truncate text-primary"
+                  :href="mapHref(brand.hq_location)"
+                  target="_blank"
+                  rel="noopener"
+                  :title="brand.hq_location"
+                >
+                  {{ brand.hq_location }}
+                </a>
+              </template>
+              <span v-else class="text-medium-emphasis">Add HQ location</span>
             </div>
           </v-card-text>
         </v-card>
@@ -208,23 +219,49 @@
 
             <v-row dense>
                 <v-col cols="12" md="6">
-                <div class="kv">
+                  <div class="kv">
                     <div class="kv__label">Social</div>
                     <div class="kv__value">
-                    <div class="meta-line">
+                      <div class="meta-line">
                         <v-icon size="18" class="mr-2">mdi-instagram</v-icon>
-                        <span class="truncate">{{ profile.social?.instagram || '—' }}</span>
-                    </div>
-                    <div class="meta-line">
+                        <template v-if="profile.socials?.instagram">
+                          <a
+                            class="truncate"
+                            :href="socialHref('instagram', profile.socials.instagram)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >{{ profile.socials.instagram }}</a>
+                        </template>
+                        <template v-else><span class="truncate">—</span></template>
+                      </div>
+
+                      <div class="meta-line">
                         <v-icon size="18" class="mr-2">mdi-facebook</v-icon>
-                        <span class="truncate">{{ profile.social?.facebook || '—' }}</span>
-                    </div>
-                    <div class="meta-line">
+                        <template v-if="profile.socials?.facebook">
+                          <a
+                            class="truncate"
+                            :href="socialHref('facebook', profile.socials.facebook)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >{{ profile.socials.facebook }}</a>
+                        </template>
+                        <template v-else><span class="truncate">—</span></template>
+                      </div>
+
+                      <div class="meta-line">
                         <v-icon size="18" class="mr-2">mdi-linkedin</v-icon>
-                        <span class="truncate">{{ profile.social?.linkedin || '—' }}</span>
+                        <template v-if="profile.socials?.linkedin">
+                          <a
+                            class="truncate"
+                            :href="socialHref('linkedin', profile.socials.linkedin)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >{{ profile.socials.linkedin }}</a>
+                        </template>
+                        <template v-else><span class="truncate">—</span></template>
+                      </div>
                     </div>
-                    </div>
-                </div>
+                  </div>
                 </v-col>
 
                 <v-col cols="12" md="6">
@@ -289,8 +326,6 @@ const profile = reactive({  // granular brand profile
   logo: '',
   tagline: '',
   description: '',
-  hq_location: '',
-  contact_email: '',
   price_tier: '',                  // 'Budget' | 'Mid' | 'Premium' | 'Luxury'
   sales_channels: [],              // ['DTC ecom', 'Wholesale', 'Marketplaces', 'Retail']
   target_markets: [],              // ['US', 'Canada', 'EU', ...]
@@ -298,7 +333,7 @@ const profile = reactive({  // granular brand profile
   wholesale: { moq: '', lead_time: '', case_pack: '' },
   fulfillment: '',                 // '3PL', 'In-house', 'Dropship'
   return_policy: '',               // '30 days', '14 days', 'Final sale'
-  social: { instagram: '', facebook: '', linkedin: '' },
+  socials: { instagram: '', facebook: '', linkedin: '' },
   style: { primary_color: '', secondary_color: '', tone: '', packaging: '' }
 })
 
@@ -314,55 +349,53 @@ const wizard = reactive({ open: false })
 const draft = reactive({}) // working copy of profile in the wizard
 const stepIndex = ref(0)
 
-/* Step descriptors (one question per step) */
-const steps = [
-  {
-    key: 'tagline',
-    title: 'What’s your short brand tagline?',
-    help: 'Keep it punchy — one line that captures your vibe.',
-    model: 'tagline',
-    component: 'StepTextField',
-    placeholder: 'e.g., Purpose-built outdoor apparel'
-  },
-  {
-    key: 'price_tier',
-    title: 'Where do your products sit price-wise?',
-    help: 'Buyers use this to gauge fit in their assortments.',
-    model: 'price_tier',
-    component: 'StepChipGroup',
-    options: ['Budget', 'Mid', 'Premium', 'Luxury']
-  },
-  {
-    key: 'sales_channels',
-    title: 'Which sales channels do you use?',
-    help: 'Choose all that apply.',
-    model: 'sales_channels',
-    component: 'StepMultiChipGroup',
-    options: ['DTC ecom', 'Wholesale', 'Marketplaces', 'Retail']
-  },
-  {
-    key: 'target_markets',
-    title: 'Where do you primarily sell?',
-    help: 'Select main regions.',
-    model: 'target_markets',
-    component: 'StepMultiChipGroup',
-    options: ['US', 'Canada', 'EU', 'UK', 'APAC']
-  },
-  {
-    key: 'wholesale',
-    title: 'Wholesale basics',
-    help: 'Minimum order quantity, typical lead time, and case pack.',
-    model: 'wholesale',
-    component: 'StepWholesale'
-  },
-  {
-    key: 'style',
-    title: 'Brand style',
-    help: 'Colors and tone help retailers present you correctly.',
-    model: 'style',
-    component: 'StepStyle'
-  },
-]
+
+function socialHref(platform, value) {
+  if (!value) return ''
+  const v = value.trim()
+  // If already a URL, return as-is.
+  if (/^https?:\/\//i.test(v)) return v
+
+  // Strip a leading @ for handle inputs.
+  const handle = v.replace(/^@/, '')
+
+  switch (platform) {
+    case 'instagram':
+      return `https://instagram.com/${handle}`
+    case 'facebook':
+      // Allow people to paste "company/page" or just "yourbrandpage"
+      return `https://facebook.com/${handle}`
+    case 'linkedin':
+      // Common patterns: "company/yourbrand" or "in/firstname-lastname"
+      // If they only enter "yourbrand", assume a company page
+      const path = /^(company|in)\//i.test(handle) ? handle : `company/${handle}`
+      return `https://linkedin.com/${path}`
+    default:
+      return ''
+  }
+}
+
+function mapHref(address) {
+  if (!address) return ''
+  const q = encodeURIComponent(address.trim())
+
+  // Basic UA sniff to choose best target
+  const ua = navigator.userAgent || ''
+  const isIOS = /iPad|iPhone|iPod/.test(ua)
+  const isAndroid = /Android/.test(ua)
+
+  if (isIOS) {
+    // Opens Apple Maps app
+    return `maps://?q=${q}` // falls back to apple maps web if needed
+    // Alternative: `https://maps.apple.com/?q=${q}`
+  }
+  if (isAndroid) {
+    // Triggers Android chooser (Google Maps / other map apps)
+    return `geo:0,0?q=${q}`
+  }
+  // Desktop & generic fallback: Google Maps web
+  return `https://www.google.com/maps/search/?api=1&query=${q}`
+}
 
 /* ---- Lifecycle ---- */
 onMounted(async () => {
@@ -387,7 +420,9 @@ async function apiFetchBrand() {
         name: "Duffey's Dapper Duds",
         website: 'https://duffeysdapperduds.com',
         category: 'Product Brand (General)',
-        industry: 'Apparel'
+        industry: 'Apparel',
+        hq_location: 'Union Station, Denver, CO',
+        contact_email: 'foxdogdevelopment@gmail.com',
       })
     }, 400)
   })
@@ -402,8 +437,6 @@ async function apiFetchProfile(brandId) {
         logo: '',
         tagline: '',
         description: '',
-        hq_location: '',
-        contact_email: '',
         price_tier: '',
         sales_channels: [],
         target_markets: [],
