@@ -486,8 +486,9 @@ function computeCompletion(p) {
     p.target_markets?.length
   ]
   return mustHave.every(Boolean)
+}
 
-  async function onWizardSave (draft) {
+async function onWizardSave (draft) {
   // Here you persist to your API (or duped save),
   // then merge into the live `profile`.
   // Example:
@@ -495,7 +496,6 @@ function computeCompletion(p) {
   Object.assign(profile, draft)
   profile.completed = computeCompletion(profile)
   toast?.({ message: 'Brand profile saved.' })
-}
 }
 </script>
 

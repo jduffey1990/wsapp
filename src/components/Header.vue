@@ -119,7 +119,14 @@ onMounted(() => {
 });
 
 const onSurvey = ref(false);
-
+//check if url contains survey every time the route changes
+const checkSurvey = () => {
+  if (window.location.href.includes('survey')) {
+    onSurvey.value = true;
+  } else {
+    onSurvey.value = false;
+  }
+};
 
 const route = useRoute();
 

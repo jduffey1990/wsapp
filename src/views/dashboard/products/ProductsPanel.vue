@@ -138,7 +138,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 
-const show = inject('toast')
+const { show } = inject('toast')
 
 /* State */
 const loading = ref(false)

@@ -76,9 +76,9 @@ const currentTab = ref(0)
 const products = ref([])
 
 /* Lifecycle hooks */
-onMounted(async () => {
-  await fetchUserProductsDuped()
-})
+// onMounted(async () => {
+//   await fetchUserProductsDuped()
+// })
 
 const goToProduct = (item) => {
   router.push({
