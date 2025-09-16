@@ -1,18 +1,11 @@
 <template>
   <div>
-    
     <v-card-text>
       <Transition name="fade-transition" mode="out-in">
         <BrandAccountCreate
-          v-if="step === 'brand'"
           @brand-linked="onBrandLinked"
           @cancel="$emit('cancel')"
-        />
-        <ProfileAccountCreate
-          v-else
-          :brand="brand"
           @created="onCreated"
-          @cancel="step = 'brand'"
         />
       </Transition>
     </v-card-text>
@@ -22,16 +15,12 @@
 <script setup>
 import { ref } from 'vue'
 import BrandAccountCreate from './BrandAccountCreate.vue'
-import ProfileAccountCreate from './ProfileAccountCreate.vue'
 
 const emit = defineEmits(['created', 'cancel'])
-
-const step = ref('brand')   // 'brand' or 'profile'
 const brand = ref(null)     // will hold { id, name }
 
 function onBrandLinked(payload) {
   brand.value = payload
-  step.value = 'profile'
 }
 
 function onCreated() {

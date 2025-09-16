@@ -1,5 +1,5 @@
 <template>
-  <v-form @submit.prevent="tab === 'join' ? joinBrandDuped() : createBrandDuped()">
+  <v-form @submit.prevent='onSubmit'>
     <!-- Tabs -->
     <v-tabs v-model="tab" align-tabs="center" class="mb-4">
       <v-tab value="join">Enter Access Code</v-tab>
@@ -17,9 +17,21 @@
           persistent-hint
           required
         />
+
+        <br />
+        <br />
+
+
+        <!-- Account fields live inside the SAME v-form -->
+        <ProfileAccountFields
+          v-model="accountForm"       
+          :disabled="loading"
+          @valid="accountValid = $event"
+          ref="accountRef"
+        />
         <div class="d-flex justify-end ga-2 mt-4">
           <v-btn variant="text" @click="$emit('cancel')">Cancel</v-btn>
-          <v-btn color="primary" type="submit" :loading="loading" :disabled="!passcode">
+          <v-btn color="primary" type="submit" :loading="loading" :disabled="!canJoin">
             Join Brand
           </v-btn>
         </div>
@@ -36,16 +48,13 @@
           persistent-hint
         />
 
-        <v-select
-          v-model="brandForm.category"
-          :items="categories"
-          label="What best describes you?"
-          hint="Choose the closest fit"
-          persistent-hint
-          required
+        <!-- Account fields live inside the SAME v-form -->
+        <ProfileAccountFields
+          v-model="accountForm"        
+          :disabled="loading"
+          @valid="accountValid = $event"
+          ref="accountRef"
         />
-
-        <v-text-field v-model.trim="brandForm.industry" label="Industry (optional)" />
 
         <div class="d-flex justify-end ga-2 mt-4">
           <v-btn variant="text" @click="$emit('cancel')">Cancel</v-btn>
@@ -60,33 +69,46 @@
 
 <script setup>
 import { inject, reactive, ref, computed } from 'vue'
-
-const emit = defineEmits(['brand-linked', 'cancel'])
-
+import ProfileAccountFields from './ProfileAccountFields.vue'
 const showToast = inject('toast')?.show
-// swap to $bracketsApi if your brand endpoints live there
-const $users = inject('$usersApi')
 
+//EMITS
+const emit = defineEmits(['brand-linked', 'cancel', "created"])
+
+//TAB AND PAGE
 const loading = ref(false)
 const tab = ref('join')           // 'join' | 'create'
 
 // JOIN via passcode
 const passcode = ref('')
 
-// CREATE brand
-const categories = [
-  'Retailer / Wholesaler',
-  'Product Brand (General)',
-]
 
 const brandForm = reactive({
   name: '',
   website: '',
-  category: null,   // one of categories[]
-  industry: ''
 })
+const accountForm = reactive({
+  firstName: '',
+  lastName: '',
+  username: '',
+  email: '',
+  password: ''
+})
+const accountValid = ref(false)
+const accountRef = ref(null)
 
-const canCreate = computed(() => !!brandForm.name && !!brandForm.category)
+// you can store the result of brand creation here if needed
+const createdBrand = ref(null)
+
+// Parent-level gating for the “Create Brand”  or "Join Brand" submit
+
+const canJoin = computed(() =>
+  !!passcode.value && accountValid.value && !loading.value
+)
+const canCreate = computed(() =>
+  !!brandForm.name && accountValid.value && !loading.value
+)
+
 
 function normalizeWebsite (url) {
   if (!url) return ''
@@ -95,81 +117,76 @@ function normalizeWebsite (url) {
 }
 
 async function joinBrandDuped () {
+  console.log("passscode", passcode.value)
   if (!passcode.value) return
   loading.value = true
   try {
-    
-    const { id, name } = {id: 75848949, name:"Duffey's Dapper Duds"}
-    showToast?.({ message: `Joined ${name}` })
+    const { id, name } = { id: 75848949, name: 'Duffey\'s Dapper Duds' }
+    showToast?.({ message: `Joined ${name}. Please verify your account in your linked email inbox, and then log in. Redirecting…`, timeout:6000 })
     emit('brand-linked', { id, name })
+    emit('created')
   } catch (e) {
-    const msg = e?.response?.data?.message || 'Invalid passcode.'
-    showToast?.({ message: msg, error: true })
-  } finally {
-    loading.value = false
+  console.error('joinBrandDuped error:', e)
+  const msg = e?.response?.data?.message ?? e?.message ?? 'Unexpected error'
+  showToast?.({ message: msg, error: true })
   }
-}
-
-async function joinBrand () {
-  if (!passcode.value) return
-  loading.value = true
-  try {
-    // TODO: update endpoint to your API
-    const res = await $users.post('/brands/join', { passcode: passcode.value })
-    const { id, name } = res.data
-    showToast?.({ message: `Joined ${name}` })
-    emit('brand-linked', { id, name })
-  } catch (e) {
-    const msg = e?.response?.data?.message || 'Invalid passcode.'
-    showToast?.({ message: msg, error: true })
-  } finally {
+ finally {
     loading.value = false
   }
 }
 
 async function createBrandDuped () {
-  if (!canCreate.value) return
+  if (!canCreate.value) {
+    // optional: hard check via the child’s exposed validate()
+    const ok = accountRef.value?.validate?.()
+    if (!ok) {
+      showToast?.({ message: 'Fix account fields before continuing.', error: true })
+      return
+    }
+  }
+
   loading.value = true
   try {
-    const payload = {
+    // 1) Create the brand
+    const brandPayload = {
       name: brandForm.name,
       website: normalizeWebsite(brandForm.website),
-      category: brandForm.category,
-      industry: brandForm.industry || undefined
     }
-    const { id, name } = {id: 75848949, name:"Duffey's Dapper Duds"}
-    showToast?.({ message: `Brand ${name} created.` })
-    emit('brand-linked', { id, name })
+    const brand = { id: 75848949, name: 'Duffey\'s Dapper Duds' } // fake
+    createdBrand.value = brand
+
+    // 2) Create the user (use the data coming from child via v-model)
+    const userPayload = {
+      ...accountForm,
+      name: `${accountForm.firstName} ${accountForm.lastName}`,
+      brandId: brand.id
+    }
+
+    // Fake request wait
+    await new Promise(r => setTimeout(r, 500))
+
+    showToast?.({ message: `Brand ${brand.name} created. Account created. Please verify your account in your linked email inbox, and then log in.  Redirecting…`, timeout:6000 })
+    emit('brand-linked', { id: brand.id, name: brand.name })
+    emit('created')
   } catch (e) {
-    const msg = e?.response?.data?.message || 'Could not create brand.'
+    const msg = e?.response?.data?.message || 'Could not create brand or account.'
     showToast?.({ message: msg, error: true })
   } finally {
     loading.value = false
   }
 }
 
-async function createBrand () {
-  if (!canCreate.value) return
-  loading.value = true
+const onSubmit = async () => {
   try {
-    const payload = {
-      name: brandForm.name,
-      website: normalizeWebsite(brandForm.website),
-      category: brandForm.category,
-      industry: brandForm.industry || undefined
+    if (tab.value === 'join') {
+      await joinBrandDuped()
+    } else {
+      await createBrandDuped()
     }
-    // TODO: update endpoint to your API
-    const res = await $users.post('/brands', payload)
-    const { id, name } = res.data
-    showToast?.({ message: `Brand ${name} created.` })
-    emit('brand-linked', { id, name })
   } catch (e) {
-    const msg = e?.response?.data?.message || 'Could not create brand.'
-    showToast?.({ message: msg, error: true })
-  } finally {
-    loading.value = false
+    console.error('Submit error:', e)
+    showToast?.({ message: 'Unexpected error. See console.', error: true })
   }
 }
-
 
 </script>

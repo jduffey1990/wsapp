@@ -4,7 +4,7 @@
       v-model="credentials.email"
       label="Email"
       type="text"
-      autocomplete="username"
+      autocomplete="email"
     />
     <UiPassword v-model="credentials.password" autocomplete="current-password" />
 

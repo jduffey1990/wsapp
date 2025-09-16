@@ -2,12 +2,13 @@ import {createRouter, createWebHistory, createWebHashHistory} from 'vue-router';
 import Login from '@/views/login-create/LoginPage.vue';
 import Dashboard from '@/views/dashboard/Dashboard.vue';
 import Product from '@/views/dashboard/products/Product.vue';
-import Home from '@/views/Home.vue';
+import Home from '@/views/landing/Home.vue';
 import {useUserStore} from '@/store/user';
 import Settings from '@/views/Settings.vue';
 import Success from "@/components/Success.vue";
 import Payment from "@/components/Payment";
-
+import BrandMatch from "@/views/landing/BrandMatchStep";
+import RetailerMatch from "@/views/landing/BrandMatchStep";
 
 const router = createRouter({
     history: createWebHashHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
@@ -24,6 +25,16 @@ const router = createRouter({
                 }
                 next('/dashboard')
             },
+        },
+        {
+            path: '/brand',
+            name: 'BrandMatch',
+            component: BrandMatch
+        },
+        {
+            path: '/retailer',
+            name: 'RetailerMatch',
+            component: RetailerMatch
         },
         {
             path: '/dashboard',

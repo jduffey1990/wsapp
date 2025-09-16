@@ -9,6 +9,7 @@ export const useUserStore = defineStore('user', {
     state: () => ({
         user: {
             email: null,
+            businessType: '',
         },
         token: localStorage.getItem('token') || null,
         llmCache: {}
@@ -25,6 +26,10 @@ export const useUserStore = defineStore('user', {
         setCachedResponse(id, response) {
         this.llmCache[id] = response;
         console.log("description cached for id")
+        },
+        setBusinessType(type) {
+            if (!this.user) this.user = {}
+            this.user.businessType = type
         },
         async login(credentials) {
             try {
