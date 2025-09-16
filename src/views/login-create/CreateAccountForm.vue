@@ -7,12 +7,14 @@
           @brand-linked="onBrandLinked"
           @cancel="$emit('cancel')"
           @created="onCreated"
+          @joined="onJoined"
         />
         <RetailAccountCreate
           v-else
           @retail-linked="onRetailLinked"
           @cancel="$emit('cancel')"
           @created="onCreated"
+          @joined="onJoined"
         />
       </Transition>
     </v-card-text>
@@ -28,7 +30,7 @@ import {useUserStore} from '@/store/user';
 const userStore = useUserStore();
 const {isBrand} = storeToRefs(userStore);
 
-const emit = defineEmits(['created', 'cancel'])
+const emit = defineEmits(['created', 'cancel', 'joined'])
 const brand = ref(null)     // will hold { id, name }
 const retailAccount = ref(null)     // will hold { id, name }
 
@@ -42,6 +44,10 @@ function onRetailLinked(payload) {
 
 function onCreated() {
   emit('created')
+}
+
+function onJoined() {
+  emit('joined')
 }
 </script>
 

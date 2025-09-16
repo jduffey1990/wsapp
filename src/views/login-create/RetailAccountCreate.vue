@@ -73,7 +73,7 @@ import ProfileAccountFields from './ProfileAccountFields.vue'
 const showToast = inject('toast')?.show
 
 //EMITS
-const emit = defineEmits(['retail-linked', 'cancel', "created"])
+const emit = defineEmits(['retail-linked', 'cancel', "created", "joined"])
 
 //TAB AND PAGE
 const loading = ref(false)
@@ -124,7 +124,7 @@ async function joinAccountdDuped () {
     const { id, name } = { id: 75848949, name: 'Duffey\'s Dapper Duds' }
     showToast?.({ message: `Joined ${name}. Please verify your account in your linked email inbox, and then log in. Redirecting…`, timeout:6000 })
     emit('retail-linked', { id, name })
-    emit('created')
+    emit('joined')
   } catch (e) {
   console.error('joinAccountDuped error:', e)
   const msg = e?.response?.data?.message ?? e?.message ?? 'Unexpected error'

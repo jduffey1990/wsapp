@@ -9,6 +9,7 @@ import Success from "@/components/Success.vue";
 import Payment from "@/components/Payment";
 import BrandMatch from "@/views/landing/BrandMatchStep";
 import RetailerMatch from "@/views/landing/BrandMatchStep";
+import TechShowcase from '@/components/TechShowcase.vue';
 
 const router = createRouter({
     history: createWebHashHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
@@ -35,6 +36,11 @@ const router = createRouter({
             path: '/retailer',
             name: 'RetailerMatch',
             component: RetailerMatch
+        },
+        {
+            path: '/techShowcase',
+            name: 'techShowcase',
+            component: TechShowcase
         },
         {
             path: '/dashboard',

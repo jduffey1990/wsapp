@@ -22,6 +22,7 @@
             :is="showCreate ? CreateAccountForm : LoginForm"
             @success="onLoginSuccess"
             @created="onCreated"
+            @joined="onJoined"
             @cancel="showCreate = false"
           />
         </Transition>
@@ -59,8 +60,14 @@ function onLoginSuccess () {
   setTimeout(() => router.push('/dashboard'), 2000)
 }
 
+function onJoined () {
+  // toast is already shown inside child; then go back to login
+  showCreate.value = false
+}
+
 function onCreated () {
   // toast is already shown inside child; then go back to login
   showCreate.value = false
+  router.push('/techShowcase')
 }
 </script>
