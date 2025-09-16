@@ -12,7 +12,7 @@
         We use retailer + brand data to match you with perfectly aligned brands.
       </p>
       <div class="mt-6 d-flex ga-3 justify-center">
-        <v-btn variant="flat" class="cta-btn" color="brand-primary" :to="{ name: 'Login' }">
+        <v-btn variant="flat" class="cta-btn" color="brand-primary" @click="setRetailer">
           Get Started
         </v-btn>
         <v-btn variant="outlined" class="cta-outline" color="brand-success" @click="seeVideo()">See How It Works</v-btn>
@@ -43,8 +43,23 @@
 
 <script setup>
 import { useOverlayStore } from '@/store/overlay'
+import { useUserStore } from '@/store/user'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+
 const overlayStore = useOverlayStore()
-function seeVideo() {
+
+// Get the store instance for actions, and refs for reactive state
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)   // state as refs
+const router = useRouter()
+
+function setRetailer () {
+  userStore.setBusinessType('retail')     // call the action
+  router.push('/login')
+}
+
+function seeVideo () {
   overlayStore.openOverlay({
     title: 'How Brandora matches retailers with the right brands',
     text: '',
@@ -53,6 +68,7 @@ function seeVideo() {
   })
 }
 </script>
+
 
 <style scoped>
 .center{ display:flex; flex-direction:column; justify-content:center; align-items:center; }

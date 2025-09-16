@@ -3,7 +3,14 @@
     <v-card-text>
       <Transition name="fade-transition" mode="out-in">
         <BrandAccountCreate
+          v-if="isBrand"
           @brand-linked="onBrandLinked"
+          @cancel="$emit('cancel')"
+          @created="onCreated"
+        />
+        <RetailAccountCreate
+          v-else
+          @retail-linked="onRetailLinked"
           @cancel="$emit('cancel')"
           @created="onCreated"
         />
@@ -13,14 +20,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import {storeToRefs} from 'pinia';
 import BrandAccountCreate from './BrandAccountCreate.vue'
+import RetailAccountCreate from './RetailAccountCreate.vue'
+import {useUserStore} from '@/store/user';
+const userStore = useUserStore();
+const {isBrand} = storeToRefs(userStore);
 
 const emit = defineEmits(['created', 'cancel'])
 const brand = ref(null)     // will hold { id, name }
+const retailAccount = ref(null)     // will hold { id, name }
 
 function onBrandLinked(payload) {
   brand.value = payload
+}
+
+function onRetailLinked(payload) {
+  retailAccount.value = payload
 }
 
 function onCreated() {

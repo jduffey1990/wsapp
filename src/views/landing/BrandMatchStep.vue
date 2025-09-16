@@ -43,10 +43,25 @@
 
 <script setup>
 import { useOverlayStore } from '@/store/overlay'
+import { useUserStore } from '@/store/user'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+
 const overlayStore = useOverlayStore()
-function seeVideo() {
+
+// Get the store instance for actions, and refs for reactive state
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)   // state as refs
+const router = useRouter()
+
+function setRetailer () {
+  userStore.setBusinessType('brand')     // call the action
+  router.push('/login')
+}
+
+function seeVideo () {
   overlayStore.openOverlay({
-    title: 'How Brandora matches brands with the right retailers',
+    title: 'How Brandora matches retailers with the right brands',
     text: '',
     mediaType: 'video',
     src: '/filler.mp4',

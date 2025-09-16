@@ -15,9 +15,10 @@ export const useUserStore = defineStore('user', {
         llmCache: {}
     }),
     getters: {
-        isLoggedIn(state) {
-            return !!state.user.email;
-        }
+        isLoggedIn: (state) => !!state.user.email,
+        businessType: (state) => state.user?.businessType || '',
+        isBrand: (state) => state.user?.businessType === 'brand',
+        isRetail: (state) => state.user?.businessType === 'retail',
     },
     actions: {
         getCachedResponse(id) {
