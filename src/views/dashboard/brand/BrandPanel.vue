@@ -1,6 +1,5 @@
 <!-- src/components/BrandPanel.vue -->
 <template>
-  <v-container fluid>
     <!-- Header / CTA -->
     <div class="table-title">
       <div>
@@ -9,7 +8,7 @@
           Manage the public-facing details of your brand.
         </div>
       </div>
-      <div class="d-flex ga-2">
+      <div class="d-flex ga-2 title-bottom">
         <v-chip
           size="small"
           :color="profileCompleted ? 'success' : 'warning'"
@@ -28,265 +27,274 @@
     </div>
 
     <!-- Loading / Empty states -->
-    <v-skeleton-loader
-      v-if="loading"
-      class="mt-6"
-      type="card, list-item-two-line, image"
-    />
-    <div v-else-if="!brand" class="mt-8 text-center">
-      <div class="text-subtitle-1 mb-2">No brand linked yet</div>
-      <div class="text-body-2">Join or create a brand first.</div>
-    </div>
+     <v-row align="start" dense class="mt-2">
+      <!-- LEFT: Brand / Overview -->
+      <v-col cols="12" md="8">
+      <v-skeleton-loader
+        v-if="loading"
+        class="mt-6"
+        type="card, list-item-two-line, image"
+      />
+      <div v-else-if="!brand" class="mt-8 text-center">
+        <div class="text-subtitle-1 mb-2">No brand linked yet</div>
+        <div class="text-body-2">Join or create a brand first.</div>
+      </div>
 
-    <!-- Brand Summary -->
-    <v-row v-else class="mt-2" dense>
-      <v-col cols="12" md="12">
-        <v-card class="product-card">
-          <v-card-text>
-            <div class="d-flex ga-4 align-start">
-              <v-avatar size="72" rounded="lg" class="elevation-1">
-                <v-img :src="profile.logo || placeholderLogo" cover />
-              </v-avatar>
-              <div class="flex-1">
-                <div class="text-h6 truncate">{{ brand.name }}</div>
-                <div class="text-body-2 text-medium-emphasis truncate">
-                  {{ profile.tagline || 'Add a short tagline' }}
-                </div>
-                <div class="mt-2 d-flex align-center ga-2">
-                  <v-chip size="x-small" label variant="tonal">
-                    {{ brand.category || 'Uncategorized' }}
-                  </v-chip>
-                  <v-chip v-if="brand.industry" size="x-small" label variant="tonal">
-                    {{ brand.industry }}
-                  </v-chip>
+      <!-- Brand Summary -->
+
+      <v-row v-else dense>
+        <v-col cols="12">
+          <v-card class="product-card">
+            <v-card-text>
+              <div class="d-flex ga-4 align-start">
+                <v-avatar size="72" rounded="lg" class="elevation-1">
+                  <v-img :src="profile.logo || placeholderLogo" cover />
+                </v-avatar>
+                <div class="flex-1">
+                  <div class="text-h6 truncate">{{ brand.name }}</div>
+                  <div class="text-body-2 text-medium-emphasis truncate">
+                    {{ profile.tagline || 'Add a short tagline' }}
+                  </div>
+                  <div class="mt-2 d-flex align-center ga-2">
+                    <v-chip size="x-small" label variant="tonal">
+                      {{ brand.category || 'Uncategorized' }}
+                    </v-chip>
+                    <v-chip v-if="brand.industry" size="x-small" label variant="tonal">
+                      {{ brand.industry }}
+                    </v-chip>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <v-divider class="my-4" />
+              <v-divider class="my-4" />
 
-            <div class="meta-line">
-              <v-icon size="18" class="mr-2">mdi-web</v-icon>
-              <a
-                v-if="brand.website"
-                class="text-primary truncate"
-                :href="brand.website"
-                target="_blank"
-                rel="noopener"
-              >
-                {{ brand.website }}
-              </a>
-              <span v-else class="text-medium-emphasis">Add website</span>
-            </div>
-            <div class="meta-line">
-              <v-icon size="18" class="mr-2">mdi-email-outline</v-icon>
-              <span class="truncate">{{ brand.contact_email || 'Add contact email' }}</span>
-            </div>
-            <div class="meta-line">
-              <v-icon size="18" class="mr-2">mdi-map-marker-outline</v-icon>
-              <template v-if="brand.hq_location">
+              <div class="meta-line">
+                <v-icon size="18" class="mr-2">mdi-web</v-icon>
                 <a
-                  class="truncate text-primary"
-                  :href="mapHref(brand.hq_location)"
+                  v-if="brand.website"
+                  class="text-primary truncate"
+                  :href="brand.website"
                   target="_blank"
                   rel="noopener"
-                  :title="brand.hq_location"
                 >
-                  {{ brand.hq_location }}
+                  {{ brand.website }}
                 </a>
-              </template>
-              <span v-else class="text-medium-emphasis">Add HQ location</span>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <!-- Key Details -->
-      <v-col cols="12" md="12">
-        <v-card class="product-card overview-card">
-            <v-card-title class="py-3 d-flex align-center">
-            <v-icon class="mr-2">mdi-text-box-outline</v-icon>
-            Overview
-            </v-card-title>
-
-            <v-card-text class="pt-0">
-            <v-row dense>
-                <v-col cols="12" md="6">
-                <div class="kv">
-                    <div class="kv__label">Description</div>
-                    <div class="kv__value clamp-3">
-                    {{ profile.description || 'Add a short description about your brand and products.' }}
-                    </div>
-                </div>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                <div class="kv">
-                    <div class="kv__label">Price Tier</div>
-                    <div class="kv__value">
-                    <v-chip
-                        v-if="profile.price_tier"
-                        size="small"
-                        label
-                        class="chip-tonal"
-                    >{{ profile.price_tier }}</v-chip>
-                    <span v-else class="empty-pill">Unset</span>
-                    </div>
-                </div>
-
-                <div class="kv mt-4">
-                    <div class="kv__label">Sales Channels</div>
-                    <div class="kv__value">
-                    <template v-if="profile.sales_channels?.length">
-                        <v-chip
-                        v-for="s in profile.sales_channels"
-                        :key="s"
-                        size="x-small"
-                        class="mr-1 mb-1 chip-tonal"
-                        label
-                        >{{ s }}</v-chip>
-                    </template>
-                    <span v-else class="empty-pill">Unset</span>
-                    </div>
-                </div>
-                </v-col>
-            </v-row>
-
-            <v-divider class="my-6 soft-divider" />
-
-            <v-row dense>
-                <v-col cols="12" md="6">
-                <div class="kv">
-                    <div class="kv__label">Target Markets</div>
-                    <div class="kv__value">
-                    <template v-if="profile.target_markets?.length">
-                        <v-chip
-                        v-for="t in profile.target_markets"
-                        :key="t"
-                        size="x-small"
-                        class="mr-1 mb-1 chip-tonal"
-                        label
-                        >{{ t }}</v-chip>
-                    </template>
-                    <span v-else class="empty-pill">Unset</span>
-                    </div>
-                </div>
-
-                <div class="kv mt-4">
-                    <div class="kv__label">Categories</div>
-                    <div class="kv__value">
-                    <template v-if="profile.categories?.length">
-                        <v-chip
-                        v-for="c in profile.categories"
-                        :key="c"
-                        size="x-small"
-                        class="mr-1 mb-1 chip-tonal"
-                        label
-                        >{{ c }}</v-chip>
-                    </template>
-                    <span v-else class="empty-pill">Unset</span>
-                    </div>
-                </div>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                <div class="kv">
-                    <div class="kv__label">Wholesale</div>
-                    <div class="kv__value grid-2">
-                    <div><span class="muted">MOQ</span> <strong>{{ profile.wholesale?.moq ?? '—' }}</strong></div>
-                    <div><span class="muted">Lead Time</span> <strong>{{ profile.wholesale?.lead_time ?? '—' }}</strong></div>
-                    <div><span class="muted">Case Pack</span> <strong>{{ profile.wholesale?.case_pack ?? '—' }}</strong></div>
-                    </div>
-                </div>
-
-                <div class="kv mt-4">
-                    <div class="kv__label">Fulfillment</div>
-                    <div class="kv__value">
-                    {{ profile.fulfillment || 'Unset' }}
-                    </div>
-                </div>
-
-                <div class="kv mt-4">
-                    <div class="kv__label">Returns</div>
-                    <div class="kv__value">
-                    {{ profile.return_policy || 'Unset' }}
-                    </div>
-                </div>
-                </v-col>
-            </v-row>
-
-            <v-divider class="my-6 soft-divider" />
-
-            <v-row dense>
-                <v-col cols="12" md="6">
-                  <div class="kv">
-                    <div class="kv__label">Social</div>
-                    <div class="kv__value">
-                      <div class="meta-line">
-                        <v-icon size="18" class="mr-2">mdi-instagram</v-icon>
-                        <template v-if="profile.socials?.instagram">
-                          <a
-                            class="truncate"
-                            :href="socialHref('instagram', profile.socials.instagram)"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >{{ profile.socials.instagram }}</a>
-                        </template>
-                        <template v-else><span class="truncate">—</span></template>
-                      </div>
-
-                      <div class="meta-line">
-                        <v-icon size="18" class="mr-2">mdi-facebook</v-icon>
-                        <template v-if="profile.socials?.facebook">
-                          <a
-                            class="truncate"
-                            :href="socialHref('facebook', profile.socials.facebook)"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >{{ profile.socials.facebook }}</a>
-                        </template>
-                        <template v-else><span class="truncate">—</span></template>
-                      </div>
-
-                      <div class="meta-line">
-                        <v-icon size="18" class="mr-2">mdi-linkedin</v-icon>
-                        <template v-if="profile.socials?.linkedin">
-                          <a
-                            class="truncate"
-                            :href="socialHref('linkedin', profile.socials.linkedin)"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >{{ profile.socials.linkedin }}</a>
-                        </template>
-                        <template v-else><span class="truncate">—</span></template>
-                      </div>
-                    </div>
-                  </div>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                <div class="kv">
-                    <div class="kv__label">Brand Style</div>
-                    <div class="kv__value">
-                    <div class="swatch-line">
-                        <span class="muted">Primary</span>
-                        <span class="swatch" :style="{ background: profile.style?.primary_color || 'var(--brand-primary)' }"></span>
-                        <code class="code-badge">{{ profile.style?.primary_color || '#5B9279' }}</code>
-                    </div>
-                    <div class="swatch-line">
-                        <span class="muted">Secondary</span>
-                        <span class="swatch" :style="{ background: profile.style?.secondary_color || 'var(--brand-secondary)' }"></span>
-                        <code class="code-badge">{{ profile.style?.secondary_color || '#12130F' }}</code>
-                    </div>
-                    <div class="mt-2"><span class="muted">Tone</span> — {{ profile.style?.tone || '—' }}</div>
-                    <div class="mt-1"><span class="muted">Packaging</span> — {{ profile.style?.packaging || '—' }}</div>
-                    </div>
-                </div>
-                </v-col>
-            </v-row>
+                <span v-else class="text-medium-emphasis">Add website</span>
+              </div>
+              <div class="meta-line">
+                <v-icon size="18" class="mr-2">mdi-email-outline</v-icon>
+                <span class="truncate">{{ brand.contact_email || 'Add contact email' }}</span>
+              </div>
+              <div class="meta-line">
+                <v-icon size="18" class="mr-2">mdi-map-marker-outline</v-icon>
+                <template v-if="brand.hq_location">
+                  <a
+                    class="truncate text-primary"
+                    :href="mapHref(brand.hq_location)"
+                    target="_blank"
+                    rel="noopener"
+                    :title="brand.hq_location"
+                  >
+                    {{ brand.hq_location }}
+                  </a>
+                </template>
+                <span v-else class="text-medium-emphasis">Add HQ location</span>
+              </div>
             </v-card-text>
-        </v-card>
+          </v-card>
         </v-col>
+
+        <!-- Key Details -->
+        <v-col cols="12" md="12">
+          <v-card class="product-card overview-card">
+              <v-card-title class="py-3 d-flex align-center">
+              <v-icon class="mr-2">mdi-text-box-outline</v-icon>
+              Overview
+              </v-card-title>
+
+              <v-card-text class="pt-0">
+              <v-row dense>
+                  <v-col cols="12" md="6">
+                  <div class="kv">
+                      <div class="kv__label">Description</div>
+                      <div class="kv__value clamp-3">
+                      {{ profile.description || 'Add a short description about your brand and products.' }}
+                      </div>
+                  </div>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                  <div class="kv">
+                      <div class="kv__label">Price Tier</div>
+                      <div class="kv__value">
+                      <v-chip
+                          v-if="profile.price_tier"
+                          size="small"
+                          label
+                          class="chip-tonal"
+                      >{{ profile.price_tier }}</v-chip>
+                      <span v-else class="empty-pill">Unset</span>
+                      </div>
+                  </div>
+
+                  <div class="kv mt-4">
+                      <div class="kv__label">Sales Channels</div>
+                      <div class="kv__value">
+                      <template v-if="profile.sales_channels?.length">
+                          <v-chip
+                          v-for="s in profile.sales_channels"
+                          :key="s"
+                          size="x-small"
+                          class="mr-1 mb-1 chip-tonal"
+                          label
+                          >{{ s }}</v-chip>
+                      </template>
+                      <span v-else class="empty-pill">Unset</span>
+                      </div>
+                  </div>
+                  </v-col>
+              </v-row>
+
+              <v-divider class="my-6 soft-divider" />
+
+              <v-row dense>
+                  <v-col cols="12" md="6">
+                  <div class="kv">
+                      <div class="kv__label">Target Markets</div>
+                      <div class="kv__value">
+                      <template v-if="profile.target_markets?.length">
+                          <v-chip
+                          v-for="t in profile.target_markets"
+                          :key="t"
+                          size="x-small"
+                          class="mr-1 mb-1 chip-tonal"
+                          label
+                          >{{ t }}</v-chip>
+                      </template>
+                      <span v-else class="empty-pill">Unset</span>
+                      </div>
+                  </div>
+
+                  <div class="kv mt-4">
+                      <div class="kv__label">Categories</div>
+                      <div class="kv__value">
+                      <template v-if="profile.categories?.length">
+                          <v-chip
+                          v-for="c in profile.categories"
+                          :key="c"
+                          size="x-small"
+                          class="mr-1 mb-1 chip-tonal"
+                          label
+                          >{{ c }}</v-chip>
+                      </template>
+                      <span v-else class="empty-pill">Unset</span>
+                      </div>
+                  </div>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                  <div class="kv">
+                      <div class="kv__label">Wholesale</div>
+                      <div class="kv__value grid-2">
+                      <div><span class="muted">MOQ</span> <strong>{{ profile.wholesale?.moq ?? '—' }}</strong></div>
+                      <div><span class="muted">Lead Time</span> <strong>{{ profile.wholesale?.lead_time ?? '—' }}</strong></div>
+                      <div><span class="muted">Case Pack</span> <strong>{{ profile.wholesale?.case_pack ?? '—' }}</strong></div>
+                      </div>
+                  </div>
+
+                  <div class="kv mt-4">
+                      <div class="kv__label">Fulfillment</div>
+                      <div class="kv__value">
+                      {{ profile.fulfillment || 'Unset' }}
+                      </div>
+                  </div>
+
+                  <div class="kv mt-4">
+                      <div class="kv__label">Returns</div>
+                      <div class="kv__value">
+                      {{ profile.return_policy || 'Unset' }}
+                      </div>
+                  </div>
+                  </v-col>
+              </v-row>
+
+              <v-divider class="my-6 soft-divider" />
+
+              <v-row dense>
+                  <v-col cols="12" md="6">
+                    <div class="kv">
+                      <div class="kv__label">Social</div>
+                      <div class="kv__value">
+                        <div class="meta-line">
+                          <v-icon size="18" class="mr-2">mdi-instagram</v-icon>
+                          <template v-if="profile.socials?.instagram">
+                            <a
+                              class="truncate"
+                              :href="socialHref('instagram', profile.socials.instagram)"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >{{ profile.socials.instagram }}</a>
+                          </template>
+                          <template v-else><span class="truncate">—</span></template>
+                        </div>
+
+                        <div class="meta-line">
+                          <v-icon size="18" class="mr-2">mdi-facebook</v-icon>
+                          <template v-if="profile.socials?.facebook">
+                            <a
+                              class="truncate"
+                              :href="socialHref('facebook', profile.socials.facebook)"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >{{ profile.socials.facebook }}</a>
+                          </template>
+                          <template v-else><span class="truncate">—</span></template>
+                        </div>
+
+                        <div class="meta-line">
+                          <v-icon size="18" class="mr-2">mdi-linkedin</v-icon>
+                          <template v-if="profile.socials?.linkedin">
+                            <a
+                              class="truncate"
+                              :href="socialHref('linkedin', profile.socials.linkedin)"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >{{ profile.socials.linkedin }}</a>
+                          </template>
+                          <template v-else><span class="truncate">—</span></template>
+                        </div>
+                      </div>
+                    </div>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                  <div class="kv">
+                      <div class="kv__label">Brand Style</div>
+                      <div class="kv__value">
+                      <div class="swatch-line">
+                          <span class="muted">Primary</span>
+                          <span class="swatch" :style="{ background: profile.style?.primary_color || 'var(--brand-primary)' }"></span>
+                          <code class="code-badge">{{ profile.style?.primary_color || '#5B9279' }}</code>
+                      </div>
+                      <div class="swatch-line">
+                          <span class="muted">Secondary</span>
+                          <span class="swatch" :style="{ background: profile.style?.secondary_color || 'var(--brand-secondary)' }"></span>
+                          <code class="code-badge">{{ profile.style?.secondary_color || '#12130F' }}</code>
+                      </div>
+                      <div class="mt-2"><span class="muted">Tone</span> — {{ profile.style?.tone || '—' }}</div>
+                      <div class="mt-1"><span class="muted">Packaging</span> — {{ profile.style?.packaging || '—' }}</div>
+                      </div>
+                  </div>
+                  </v-col>
+              </v-row>
+              </v-card-text>
+          </v-card>
+          </v-col>
+      </v-row>
+      </v-col>
+    <v-col cols="12" md="4">
+        <product-sidebar class="brand-sidebar" />
+      </v-col>
     </v-row>
 
     <!-- Wizard Dialog (Step-by-step setup) -->
@@ -298,7 +306,6 @@
     @save="onWizardSave"
     @cancel="() => (wizardOpen = false)"
   />
-  </v-container>
 </template>
 
 <script setup>
@@ -308,6 +315,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
 import BrandWizard from './BrandWizard.vue'
+import ProductSidebar from './ProductSidebar.vue'
 
 /* Router, stores, injections */
 const router = useRouter()
@@ -553,9 +561,18 @@ async function onWizardSave (draft) {
     0 8px 24px rgba(0,0,0,0.06);
 }
 
+.overall-container {
+  width: 110% !important;
+}
+
 .overview-card .v-card-title {
   border-bottom: 1px solid rgba(0,0,0,0.06);
   font-weight: 700;
+}
+
+.brand-sidebar {
+  position: sticky;
+  top: 12px;       /* keeps the list in view while scrolling */
 }
 
 .soft-divider {
@@ -654,7 +671,23 @@ async function onWizardSave (draft) {
   flex-direction: row;
   justify-content: space-between;
   align-items: start;
-  padding-bottom: 10px;
+  padding: 10px;
+}
+
+@media (max-width: 700px) {
+  .table-title {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .title-bottom {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
 }
 
 </style>

@@ -1,7 +1,7 @@
 import {createRouter, createWebHistory, createWebHashHistory} from 'vue-router';
 import Login from '@/views/login-create/LoginPage.vue';
 import Dashboard from '@/views/dashboard/Dashboard.vue';
-import Product from '@/views/dashboard/products/Product.vue';
+import Product from '@/views/dashboard/brand/Product.vue';
 import Home from '@/views/landing/Home.vue';
 import {useUserStore} from '@/store/user';
 import Settings from '@/views/Settings.vue';

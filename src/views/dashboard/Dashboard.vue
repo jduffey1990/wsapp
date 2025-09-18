@@ -15,10 +15,10 @@
     <!-- Tabs for switching between brackets and news -->
     <v-tabs v-model="currentTab" background-color="primary" class="white--text">
       <v-tab>
-        Product
+        Matches
       </v-tab>
       <v-tab>
-        Brand
+        Products
       </v-tab>
       <v-tab>
         Team
@@ -28,22 +28,17 @@
     <!-- Content of the selected tab -->
     <v-tabs-window v-model="currentTab" class="mt-4">
       <!-- My Brackets tab content -->
-      <!-- Product Tab -->
-      <v-tabs-window-item>
-        <v-card elevation="3" class="p-4 mt-4 card">
-          <ProductsPanel />
-        </v-card>
+       <!-- Product Tab -->
+      <v-tabs-window-item class="window-item">
+          <MatchesPanel />
       </v-tabs-window-item>
-      <!-- Brand Tab -->
+       <!-- Brand Tab -->
       <v-tabs-window-item>
-        <v-card elevation="3" class="p-4 mt-4 card">
           <BrandPanel />
-        </v-card>
       </v-tabs-window-item>
+      
       <v-tabs-window-item>
-        <v-card elevation="3" class="p-4 mt-4 card">
           <TeamPanel />
-        </v-card>
       </v-tabs-window-item>
 
     </v-tabs-window>
@@ -52,7 +47,7 @@
 
 <script setup>
 /* Imports */
-import ProductsPanel from './products/ProductsPanel.vue'
+import MatchesPanel from './matches/Matches.vue'
 import BrandPanel from './brand/BrandPanel.vue'
 import TeamPanel from './team/TeamPanel.vue'
 import { ref, onMounted, watch, inject } from 'vue'

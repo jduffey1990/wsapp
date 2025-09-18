@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <!-- Header / CTA -->
-    <div class="table-title" style="background-color: whitesmoke;">
+    <div class="table-title">
       <div class="text-h6 ml-4 mt-4">Synthize brand code for new teammember</div>
       <v-btn
         color="warning"
@@ -31,7 +31,7 @@
         :key="code.id"
         cols="12" sm="6" md="4" lg="3"
       >
-        <v-card elevation="3" class="h-100 d-flex flex-column">
+        <v-card elevation="3" class="table-title">
           <v-card-title class="text-subtitle-1">
             {{ code.code }}
           </v-card-title>
@@ -98,7 +98,7 @@
             <div class="mb-2 text-caption">Image (used in email template)</div>
             <v-text-field
               v-model="form.image"
-              label="Image URL"
+              label="Blank to use default shown below"
               class="mb-2"
               placeholder="Leave blank to use default brand logo"
             />
@@ -306,29 +306,79 @@ async function sendEmail() {
 
 
 <style scoped>
-.product-card {
-  border-radius: 12px;
-  background-color: rgba(255,255,255,0.2);
+
+/* Header / CTA bar */
+.table-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.18));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.06);
+  position: sticky;
 }
 
+/* Cards in the codes grid (your v-row.mt-4) */
+.v-row.mt-4 > .v-col > .v-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bot));
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-soft);
+  box-shadow:
+    0 1px 1px rgba(0,0,0,0.2),
+    0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* Card internals */
+.v-row.mt-4 > .v-col > .v-card .v-card-title {
+  font-weight: 700;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding-bottom: 10px;
+}
+.v-row.mt-4 > .v-col > .v-card .v-card-actions {
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Dialog card matches the glass look */
+.v-dialog .v-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bot));
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-soft);
+  box-shadow:
+    0 1px 1px rgba(0,0,0,0.02),
+    0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* Chips */
+.v-chip {
+  font-weight: 600;
+}
+.v-chip--size-small {
+  background: rgba(91,146,121,0.12);
+  border: 1px solid rgba(91,146,121,0.28);
+  color: var(--brand-secondary);
+}
+.v-chip.error {
+  background: rgba(214,73,51,0.12) !important;
+  border: 1px solid rgba(214,73,51,0.28) !important;
+}
+
+/* Helpers */
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .meta-line {
   display: flex;
   align-items: center;
-  line-height: 1.2;
-  margin-bottom: 4px;
+  line-height: 1.3;
+  margin-bottom: 6px;
 }
-
-.table-title {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: start;
-  padding-bottom: 10px;
-}
+.muted { color: var(--muted); }
+.soft-divider { border-color: rgba(0,0,0,0.06) !important; }
 </style>
