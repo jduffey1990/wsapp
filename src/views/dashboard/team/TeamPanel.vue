@@ -65,8 +65,8 @@
     </v-row>
 
     <!-- Create / Send dialog -->
-    <v-dialog v-model="dialog.open" max-width="560">
-      <v-card>
+    <v-dialog v-model="dialog.open" max-width="560" >
+      <v-card >
         <v-card-title class="text-h6">
           {{ dialog.mode === 'create' ? 'Create Code' : 'Send Code' }}
         </v-card-title>
@@ -321,6 +321,14 @@ async function sendEmail() {
   position: sticky;
 }
 
+.dialogue-email {
+  border-radius: 16px;
+  background:  rgba(255,255,255,1);
+  /* backdrop-filter: blur(6px); */
+  border: 1px solid rgba(0,0,0,0.05);
+  position: sticky;
+}
+
 /* Cards in the codes grid (your v-row.mt-4) */
 .v-row.mt-4 > .v-col > .v-card {
   border-radius: 16px;
@@ -340,17 +348,6 @@ async function sendEmail() {
 }
 .v-row.mt-4 > .v-col > .v-card .v-card-actions {
   border-top: 1px solid rgba(0,0,0,0.06);
-}
-
-/* Dialog card matches the glass look */
-.v-dialog .v-card {
-  border-radius: 16px;
-  background: linear-gradient(180deg, var(--glass-top), var(--glass-bot));
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--border-soft);
-  box-shadow:
-    0 1px 1px rgba(0,0,0,0.02),
-    0 8px 24px rgba(0,0,0,0.06);
 }
 
 /* Chips */

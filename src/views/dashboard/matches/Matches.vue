@@ -60,8 +60,9 @@
               <div class="table-title mb-2">
                 <div class="text-subtitle-1">Fit by Attribute</div>
               </div>
-              <RadarChart :points="selectedMatch.radarPoints" :name="selectedMatch.storeName" class="mb-4" />
-
+              <div class="d-flex justify-center">
+                <RadarChart :points="selectedMatch.radarPoints" :name="selectedMatch.storeName" class="mb-4" />
+              </div>
               <v-row dense>
                 <v-col cols="12" md="6">
                   <div class="kv">

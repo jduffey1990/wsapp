@@ -8,7 +8,7 @@ import Settings from '@/views/Settings.vue';
 import Success from "@/components/Success.vue";
 import Payment from "@/components/Payment";
 import BrandMatch from "@/views/landing/BrandMatchStep";
-import RetailerMatch from "@/views/landing/BrandMatchStep";
+import RetailerMatch from "@/views/landing/RetailerMatchStep.vue";
 import TechShowcase from '@/components/TechShowcase.vue';
 
 const router = createRouter({
