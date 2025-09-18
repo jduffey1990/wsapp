@@ -5,11 +5,13 @@
         <v-app-bar-title>
           <router-link to="/" custom v-slot="{ navigate }" class="">
             <v-img
-                   :width="166"
-                   src="@/assets/brandora.png"
-                   @click="navigate"
-                   class="cursor-pointer image"
-                   style="max-height: 120px;"
+                   :src="'https://brandora-jduffey.s3.us-east-2.amazonaws.com/brandora.png'"
+                    :width="166"
+                    alt="Brandora"
+                    eager
+                    class="cursor-pointer image"
+                    style="max-height: 120px;"
+                    @click="navigate"
             ></v-img>
 
           </router-link>

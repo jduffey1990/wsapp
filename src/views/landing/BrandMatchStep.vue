@@ -64,7 +64,7 @@ function seeVideo () {
     title: 'How Brandora matches retailers with the right brands',
     text: '',
     mediaType: 'video',
-    src: '/filler.mp4',
+    src: 'https://brandora-jduffey.s3.us-east-2.amazonaws.com/filler.mp4',
   })
 }
 </script>
