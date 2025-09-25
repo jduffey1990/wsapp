@@ -187,10 +187,46 @@
         <v-card-title class="py-3">
           <template v-if="selectedMatch">
             {{ selectedMatch.storeName }}
+
+            <!-- Success Score chip -->
             <v-chip class="ml-2" size="x-small" label variant="tonal">
-              Score: {{ selectedMatch.score }}
+              Success Score: {{ selectedMatch.successScore }}
+              <template #append>
+                <v-tooltip text='How successful you will be offering your product at this retailer or "filling an immediate need"' location="top">
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      icon="mdi-information-outline"
+                      size="x-small"
+                      variant="text"
+                      density="comfortable"
+                      aria-label="Success Score info"
+                    />
+                  </template>
+                </v-tooltip>
+              </template>
+            </v-chip>
+
+            <!-- Match Score chip -->
+            <v-chip class="ml-2" size="x-small" label variant="tonal">
+              Match Score: {{ selectedMatch.matchScore }}
+              <template #append>
+                <v-tooltip text='How much overlap you have with a retailer or "how well your brand make-up is already represented at this retailer"' location="top">
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      icon="mdi-information-outline"
+                      size="x-small"
+                      variant="text"
+                      density="comfortable"
+                      aria-label="Match Score info"
+                    />
+                  </template>
+                </v-tooltip>
+              </template>
             </v-chip>
           </template>
+
           <template v-else>
             Match Details
           </template>
@@ -341,7 +377,8 @@ const metaData = {
       'Off-price complement',
       'High-traffic flagship',
     ],
-    scores: [90, 86, 84, 82, 79, 77, 75, 73, 71, 69],
+    successScores: [88, 84, 80, 76, 74, 72, 70, 68, 66, 64],
+    matchScores: [74, 94, 82, 71, 69, 76, 68, 72, 50, 69],
     addresses: [
       '1600 7th Ave, Seattle, WA',
       '151 W 34th St, New York, NY',
@@ -380,7 +417,8 @@ const metaData = {
       'Action sports mix',
       'Soccer-first assortment',
     ],
-    scores: [88, 84, 80, 76, 74, 72, 70, 68, 66, 64],
+    successScores: [88, 84, 80, 76, 74, 72, 70, 68, 66, 64],
+    matchScores: [74, 94, 82, 71, 69, 76, 68, 72, 50, 69],
     addresses: [
       '345 Court St, Coraopolis, PA',
       '1800 N Mason Rd, Katy, TX',
@@ -419,7 +457,8 @@ const metaData = {
       'Backcountry specialist',
       'Climbing/Alpine focus',
     ],
-    scores: [92, 86, 82, 78, 74, 72, 70, 68, 66, 64],
+    successScores: [88, 84, 80, 76, 74, 72, 70, 68, 66, 64],
+    matchScores: [74, 94, 82, 71, 69, 76, 68, 72, 50, 69],
     addresses: [
       '1840 Cascade Ave, Boulder, CO',
       '1678 Redstone Center Dr, Park City, UT',
@@ -518,7 +557,8 @@ async function runSearch () {
       storeName: toTitle(q),
       category: catLabel,
       notes: meta.notes[k],
-      score: meta.scores[k],
+      successScore: meta.successScores[k],
+      matchScore: meta.matchScores[k],
       address: meta.addresses[k],
       website: meta.websites[k],
       phone: '',
@@ -578,7 +618,8 @@ function buildList(categoryLabel, nameList) {
       storeName,
       category: categoryLabel,
       notes: meta.notes[k],
-      score: meta.scores[k],
+      successScore: meta.successScores[k],
+      matchScore: meta.matchScores[k],
       address: meta.addresses[k],
       website: meta.websites[k],
       // you can add phone/buyerContact arrays later; default to empty now
@@ -625,7 +666,8 @@ function mkMatch({
   storeName,
   category,
   notes,
-  score,
+  matchScore,
+  successScore,
   address,
   website,
   phone = '',
@@ -641,7 +683,8 @@ function mkMatch({
     mapsUrl: `https://www.google.com/maps/search/?api=1&query=${place}`,
     category,
     notes,
-    score,
+    matchScore,
+    successScore,
     address,
     phone,
     website,
