@@ -3,57 +3,36 @@
     <!-- Heading -->
     <div class="text-center mb-8">
       <h1 class="display-1 font-weight-bold white--text">Welcome to Brandora</h1>
-      <p class="subtitle-1 mt-2 white--text">Select how we will do business together</p>
+      <v-img
+          src="https://brandora-jduffey.s3.us-east-2.amazonaws.com/brandora.png"
+          alt=""
+          class="logo">
+        </v-img>
     </div>
 
-    <!-- Choice Cards -->
-    <v-row class="justify-center" align="stretch">
-      <!-- Brand card -->
-      <v-col cols="12" md="5">
-        <v-card class="choice-card glass" elevation="8">
-          <v-card-title class="text-h5 white--text">
-            I am a brand seeking wholesale matches
-          </v-card-title>
-          <v-card-text class="white--text">
-            Find retailers perfectly aligned with your category, price point, audience, and values.
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn
-              color="brand-primary"
-              variant="flat"
-              :to="{ name: 'BrandMatch' }"
-              @click='labelUser("brand")'
-            >
-              Continue as Brand
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+    <!-- Choice Buttons -->
+    <v-row class="buttons" no-gutters>
+      <v-col cols="auto" class="button mr-2">
+        <v-btn
+          color="brand-primary"
+          variant="flat"
+          :to="{ name: 'Match', params: { aud: 'brand' } }"
+          @click='labelUser("brand")'
+          class="cta"
+        >Continue as Brand</v-btn>
       </v-col>
 
-      <!-- Retailer card -->
-      <v-col cols="12" md="5">
-        <v-card class="choice-card glass" elevation="8">
-          <v-card-title class="text-h5 white--text">
-            I am a retailer seeking brand matches
-          </v-card-title>
-          <v-card-text class="white--text">
-            Discover high-fit brands that complement your assortment and resonate with your customers.
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn
-              color="brand-success"
-              variant="outlined"
-              :to="{ name: 'RetailerMatch' }"
-              @click='labelUser("retail")'
-            >
-              Continue as Retailer
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+      <v-col cols="auto" class="button ml-2">
+        <v-btn
+          color="brand-success"
+          variant="outlined"
+          :to="{ name: 'Match', params: { aud: 'retailer' } }"
+          @click='labelUser("retail")'
+          class="cta"
+        >Continue as Retailer</v-btn>
       </v-col>
     </v-row>
+
   </v-container>
 </template>
 
@@ -78,6 +57,26 @@ const labelUser = (userType) => {
   flex-direction: column;
   justify-content: flex-start;
 }
+
+.logo {
+  padding-top: 65px;
+  max-width: 350px;
+  margin: 0 auto 16px;
+}
+
+.buttons {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  gap: 16px;            /* space between buttons (Vuetify 3 also supports class="ga-4") */
+}
+
+.cta { min-width: 220px; } 
 
 .choice-card {
   border-radius: 16px;

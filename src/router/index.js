@@ -28,9 +28,15 @@ const router = createRouter({
             },
         },
         {
-            path: '/brand',
-            name: 'BrandMatch',
-            component: BrandMatch
+            path: '/match/:aud',                 // aud = 'brand' | 'retailer'
+            name: 'Match',
+            component: BrandMatch,
+            props: route => {
+            const aud = String(route.params.aud || '').toLowerCase()
+            return aud === 'brand'
+                ? { youSingular: 'Brand', themPlural: 'Retailers', themSingular: 'Retailer', youPlural: 'Brands' }
+                : { youSingular: 'Retailer', themPlural: 'Brands', themSingular: 'Brand', youPlural: 'Retailers' }
+            }
         },
         {
             path: '/retailer',
