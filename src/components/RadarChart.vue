@@ -51,13 +51,12 @@ let chart
 
 // Local labels + a static “benchmark” dataset
 const labels = [
-  'Foot Traffic',
-  'Avg Order $',
-  'Category Fit',
-  'Margin',
-  'Lead Time',
-  'Brand Alignment',
-  'Geo Proximity'
+  'Performance',
+  'Product',
+  'Brand',
+  'Social',
+  'Customer',
+  'Wolesale',
 ]
 
 const buildData = () => {
@@ -68,7 +67,7 @@ const buildData = () => {
   datasets: [
       {
         label: "Duffey's Dapper Duds",
-        data: [65, 59, 90, 81, 56, 55, 40],
+        data: [65, 59, 90, 81, 56, 55],
         fill: true,
         backgroundColor: rgba(WARN, 0.20),
         borderColor: WARN,

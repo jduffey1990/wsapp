@@ -25,7 +25,7 @@
     </v-card>
   </v-layout>
   <div v-if="showCreationSection === false" class="button-section">
-    <v-btn class="btn-primary" @click="updateCreationSection" color="warning">New Here?</v-btn>
+    <v-btn class="btn-primary" @click="updateCreationSection" color="warning">New User?</v-btn>
   </div>
   <v-layout v-if="showCreationSection" class="button-section">
 
