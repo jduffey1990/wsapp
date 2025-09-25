@@ -435,6 +435,7 @@ onBeforeUnmount(() => {
   opacity: var(--flyAlpha);
   transition: opacity 120ms linear; /* quick pop in/out at edges */
   transform: translateX(10%); /* center horizontally */
+  mix-blend-mode: multiply;
 }
 
 .fly-img-el{
