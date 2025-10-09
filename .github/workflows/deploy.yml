@@ -37,7 +37,7 @@ jobs:
 
       - name: Build
         env:
-          VITE_VERIFY_API_URL: ${{ secrets.VITE_VERIFY_API_URL }}
+          VITE_BRANDORA_VERIFY_API_URL: ${{ secrets.VITE_VERIFY_API_URL }}
           VITE_MAPBOX_TOKEN:   ${{ secrets.VITE_MAPBOX_TOKEN }}
         run: yarn build
 
