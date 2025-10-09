@@ -1,49 +1,81 @@
 <template>
-  <v-container class="py-10 home-wrap" fluid>
-    <!-- Heading -->
-    <div class="text-center mb-8">
-      <h1 class="display-1 font-weight-bold white--text">Welcome to Brandora</h1>
-      <v-img
+  <div class="split-bg">
+    <!-- Background halves -->
+    <div
+      class="bg-half left"
+      :class="{ 'is-active': hovered === 'brand' }"
+      @mouseenter="hovered = 'brand'"
+      @mouseleave="hovered = null"
+      style="--bg-url: url('https://brandora-jduffey.s3.us-east-2.amazonaws.com/brand.png')"
+    ></div>
+
+    <div
+      class="bg-half right"
+      :class="{ 'is-active': hovered === 'retail' }"
+      @mouseenter="hovered = 'retail'"
+      @mouseleave="hovered = null"
+      style="--bg-url: url('https://brandora-jduffey.s3.us-east-2.amazonaws.com/retail.png')"
+    ></div>
+
+    <!-- Foreground content -->
+    <v-container class="py-10 home-wrap" fluid>
+      <!-- Heading -->
+      <div class="text-center mb-8">
+        <v-img
           src="https://brandora-jduffey.s3.us-east-2.amazonaws.com/brandora.png"
           alt=""
-          class="logo">
-        </v-img>
-    </div>
+          class="logo"
+        />
+      </div>
 
-    <!-- Choice Buttons -->
-    <v-row class="buttons" no-gutters>
-      <v-col cols="auto" class="button mr-2">
-        <v-btn
-          color="brand-primary"
-          variant="flat"
-          :to="{ name: 'Match', params: { aud: 'brand' } }"
-          @click='labelUser("brand")'
-          class="cta"
-        >Continue as Brand</v-btn>
-      </v-col>
+      <!-- Choice Buttons -->
+      <v-row class="buttons">
+        <v-col
+          class="button"
+          @mouseenter="hovered = 'brand'"
+          @mouseleave="hovered = null"
+        >
+          <v-btn
+            color="brand-primary"
+            variant="flat"
+            :to="{ name: 'Match', params: { aud: 'brand' } }"
+            @click="labelUser('brand')"
+            class="cta"
+          >
+            Continue as Brand
+          </v-btn>
+        </v-col>
 
-      <v-col cols="auto" class="button ml-2">
-        <v-btn
-          color="brand-success"
-          variant="outlined"
-          :to="{ name: 'Match', params: { aud: 'retailer' } }"
-          @click='labelUser("retail")'
-          class="cta"
-        >Continue as Retailer</v-btn>
-      </v-col>
-    </v-row>
-
-  </v-container>
+        <v-col
+          class="button ml-2"
+          @mouseenter="hovered = 'retail'"
+          @mouseleave="hovered = null"
+        >
+          <v-btn
+            color="brand-primary"
+            variant="flat"
+            :to="{ name: 'Match', params: { aud: 'retailer' } }"
+            @click="labelUser('retail')"
+            class="cta"
+          >
+            Continue as Retailer
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script setup>
+import { ref, inject } from 'vue'
 import { useUserStore } from '@/store/user'
-import { inject } from 'vue'
 import { storeToRefs } from 'pinia'
 
 const { show } = inject('toast') ?? { show: undefined }
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
+
+const hovered = ref(null)
 
 const labelUser = (userType) => {
   userStore.setBusinessType(userType)
@@ -51,11 +83,50 @@ const labelUser = (userType) => {
 </script>
 
 <style scoped>
+/* ====== Layout wrapper with split background ====== */
+.split-bg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.bg-half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+    var(--bg-url);
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(25%) brightness(0.82);
+  transition: filter .2s ease, box-shadow .2s ease;
+  will-change: filter;
+  /* allow hovering the background even with centered content */
+  pointer-events: auto;
+}
+
+.bg-half.left  { left: 0; }
+.bg-half.right { right: 0; }
+
+/* Hover/active highlight: subtle lift & whitening */
+.bg-half:hover,
+.bg-half.is-active {
+  filter: grayscale(0%) brightness(0.96);
+  box-shadow: inset 0 0 120px rgba(255,255,255,0.25);
+}
+
+/* ====== Foreground content ====== */
 .home-wrap {
-  min-height: 80vh;
+  position: relative;
+  z-index: 2;            /* above background halves */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  background: transparent;
 }
 
 .logo {
@@ -67,34 +138,31 @@ const labelUser = (userType) => {
 .buttons {
   display: flex;
   align-items: start;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .button {
   display: flex;
   justify-content: center;
-  gap: 16px;            /* space between buttons (Vuetify 3 also supports class="ga-4") */
+  gap: 16px; /* Vuetify 3 alternative: class="ga-4" */
 }
 
-.cta { min-width: 220px; } 
+.cta { min-width: 220px; }
 
-.choice-card {
-  border-radius: 16px;
-  transition: transform .18s ease, box-shadow .18s ease;
+/* Optional: card-like hover for buttons themselves */
+.cta:hover {
+  filter: brightness(1.05);
 }
 
-.choice-card:hover {
-  transform: translateY(-2px);
-}
-
-.glass {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-/* tighten spacing on small screens */
+/* ====== Responsive: stack halves vertically on small screens ====== */
 @media (max-width: 700px) {
+  .bg-half {
+    width: 100%;
+    height: 50%;
+  }
+  .bg-half.left  { top: 0; left: 0; right: 0; }
+  .bg-half.right { bottom: 0; left: 0; right: 0; }
+
   .home-wrap { padding-top: 32px !important; }
 }
 </style>

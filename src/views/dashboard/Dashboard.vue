@@ -15,6 +15,9 @@
     <!-- Tabs for switching between brackets and news -->
     <v-tabs v-model="currentTab" background-color="primary" class="white--text">
       <v-tab>
+        Dashboard
+      </v-tab>
+      <v-tab>
         Matches
       </v-tab>
       <v-tab>
@@ -22,6 +25,9 @@
       </v-tab>
       <v-tab>
         Team
+      </v-tab>
+      <v-tab>
+        Strategy
       </v-tab>
     </v-tabs>
 
@@ -32,11 +38,18 @@
       <v-tabs-window-item class="window-item">
           <MatchesPanel />
       </v-tabs-window-item>
+       <!-- Product Tab -->
+      <v-tabs-window-item class="window-item">
+          <MatchesPanel />
+      </v-tabs-window-item>
        <!-- Brand Tab -->
       <v-tabs-window-item>
           <BrandPanel />
       </v-tabs-window-item>
       
+      <v-tabs-window-item>
+          <TeamPanel />
+      </v-tabs-window-item>
       <v-tabs-window-item>
           <TeamPanel />
       </v-tabs-window-item>

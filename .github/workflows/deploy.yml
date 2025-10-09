@@ -36,6 +36,9 @@ jobs:
           fi
 
       - name: Build
+        env:
+          VITE_VERIFY_API_URL: ${{ secrets.VITE_VERIFY_API_URL }}
+          VITE_MAPBOX_TOKEN:   ${{ secrets.VITE_MAPBOX_TOKEN }}
         run: yarn build
 
       - name: SPA 404 fallback

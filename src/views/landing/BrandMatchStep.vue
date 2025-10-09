@@ -83,9 +83,18 @@
               loading="eager"
             />
           </div>
+          
         </div>
+        <!-- bottom buttons -->
+          <div class="dflex flex-row align-center">
+            <div class="cta-row" style="margin-top:1.5rem;">
+              <v-btn variant="flat" class="cta-btn" color="brand-primary" :to="{ name: 'Login' }">Get Started</v-btn>
+              <v-btn variant="flat" class="cta-btn" color="brand-primary" @click="seeVideo()">See How It Works</v-btn>
+            </div>
+          </div>
       </div>
     </section>
+
 
     <!-- Scroll Hint (fixed) -->
     <transition name="fade">
@@ -162,7 +171,7 @@ function triggerSwapFx(direction = 'fwd') {
   const t0 = performance.now();
 
   function run(now) {
-    if (now - t0 > 620) {
+    if (now - t0 > 200) {
       swapClass.value = '';
       swapTimer = null;
       return;

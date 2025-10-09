@@ -1,0 +1,347 @@
+<div id="app__container" class="glimmer">
+  <header>
+    <a class="linkedin-logo" href="/" aria-label="LinkedIn">
+      <li-icon aria-label="LinkedIn" size="28dp" alt="LinkedIn" color="brand" type="linkedin-logo"></li-icon>
+    </a>
+  </header>
+
+  <main class="app__content" role="main">
+    <form method="post" id="otp-generation" class="hidden__imp">
+      <input name="csrfToken" value="ajax:3315248642393577328" type="hidden" />
+      <input name="resendUrl" id="input-resend-otp-url" type="hidden" />
+      <input name="midToken" type="hidden" />
+      <input
+        name="session_redirect"
+        value="https://www.linkedin.com/company/chubbies-shorts/about/"
+        type="hidden"
+      />
+      <input name="parentPageKey" value="d_checkpoint_lg_consumer_login" type="hidden" />
+      <input
+        name="pageInstance"
+        value="urn:li:page:checkpoint_lg_uasLogin;UlbTfXgvS0CC2kzi2yXXEQ=="
+        type="hidden"
+      />
+      <input
+        name="controlId"
+        value="d_checkpoint_lg_consumer_login-SignInUsingOneTimeSignInLink"
+        type="hidden"
+      />
+      <input
+        name="session_redirect"
+        value="https://www.linkedin.com/company/chubbies-shorts/about/"
+        type="hidden"
+      />
+      <input name="trk" type="hidden" />
+      <input name="authUUID" type="hidden" />
+      <input name="encrypted_session_key" type="hidden" />
+    </form>
+
+    <code id="i18nOtpSuccessMessage" style="display: none"></code>
+    <code id="i18nOtpErrorMessage" style="display: none"></code>
+    <code id="i18nOtpRestrictedMessage" style="display: none"></code>
+
+    <div data-litms-pageview="true"></div>
+
+    <div class="card-layout">
+      <div id="organic-div">
+        <div class="header__content">
+          <h1 class="header__content__heading">Sign in</h1>
+          <p class="header__content__subheading"></p>
+        </div>
+
+        <div class="alternate-signin-container">
+          <div class="alternate-signin__btn--google invisible__imp margin-top-12"></div>
+
+          <div class="microsoft-auth-button w-full">
+            <div class="microsoft-auth-button__placeholder" data-text="signin_with"></div>
+          </div>
+
+          <button class="sign-in-with-apple-button hidden__imp" aria-label="Sign in with Apple" type="button">
+            <span class="sign-in-with-apple-button__text">Sign in with Apple</span>
+          </button>
+
+          <code id="appleSignInLibScriptPath" style="display: none"></code>
+          <code id="i18nErrorAppleSignInGeneralErrorMessage" style="display: none"></code>
+          <code id="lix_checkpoint_auth_nexus_apple_flow" style="display: none"></code>
+
+          <a
+            aria-label="Sign in with a passkey"
+            class="alternate-signin__btn margin-top-12"
+            role="button"
+            id="sign-in-with-passkey-btn"
+            style="display: none"
+          >
+            <span class="btn-text">Sign in with a passkey</span>
+          </a>
+
+          <form class="microsoft-auth" action="/uas/login-submit" method="post" onlyshowonwindows>
+            <input name="loginCsrfParam" value="2715f7d6-47ce-4bd8-8ba8-14f5e7705776" type="hidden" />
+            <input name="trk" value="d_checkpoint_lg_consumer_login_microsoft-auth-submit" type="hidden" />
+
+            <div class="loader loader--full-screen">
+              <div class="loader__container mb-2 overflow-hidden">
+                <icon
+                  class="loader__icon inline-block loader__icon--default text-color-progress-loading"
+                  data-delayed-url="https://static.licdn.com/sc/h/bzquwuxc79kqghdtn2kktfn5c"
+                  data-svg-class-name="loader__icon-svg--large fill-currentColor h-[60px] min-h-[60px] w-[60px] min-w-[60px]"
+                ></icon>
+              </div>
+            </div>
+          </form>
+
+          <code id="isMicrosoftTermsAndConditionsSkipEnabled" style="display: none"></code>
+          <code id="microsoftAuthLibraryPath" style="display: none"></code>
+          <code id="microsoftShowOneTap" style="display: none"></code>
+          <code id="microsoftLocale" style="display: none"></code>
+
+          <div id="or-separator" class="or-separator margin-top-24 snapple-seperator hidden__imp">
+            <span class="or-text">or</span>
+          </div>
+
+          <code id="googleGSILibPath" style="display: none"></code>
+          <code id="useGoogleGSILibraryTreatment" style="display: none"></code>
+          <code id="usePasskeyLogin" style="display: none"></code>
+        </div>
+
+        <form method="post" class="login__form" action="/checkpoint/lg/login-submit" novalidate>
+          <input name="csrfToken" value="ajax:3315248642393577328" type="hidden" />
+
+          <code id="login_form_validation_error_username" style="display: none"></code>
+          <code id="consumer_login__text_plain__large_username" style="display: none"></code>
+          <code id="consumer_login__text_plain__no_username" style="display: none"></code>
+
+          <div class="form__input--floating margin-top-24 email-input-type">
+            <input
+              id="username"
+              name="session_key"
+              aria-describedby="error-for-username"
+              required
+              validation="email|tel"
+              value
+              autofocus
+              autocomplete="username"
+              placeholder=" "
+              aria-label="Email or phone"
+              type="email"
+            />
+            <label class="form__label--floating" for="username" aria-hidden="true">Email or phone</label>
+            <div
+              error-for="username"
+              id="error-for-username"
+              class="form__label--error hidden__imp"
+              role="alert"
+              aria-live="assertive"
+            ></div>
+          </div>
+
+          <code id="domainSuggestion" style="display: none"></code>
+
+          <input name="ac" value="0" type="hidden" />
+          <input name="loginFailureCount" value="0" type="hidden" />
+          <input name="sIdString" value="842ba417-6511-4aa4-80e7-0b1183103e47" type="hidden" />
+          <input id="pkSupported" name="pkSupported" value="false" type="hidden" />
+          <input name="parentPageKey" value="d_checkpoint_lg_consumer_login" type="hidden" />
+          <input
+            name="pageInstance"
+            value="urn:li:page:checkpoint_lg_uasLogin;UlbTfXgvS0CC2kzi2yXXEQ=="
+            type="hidden"
+          />
+          <input name="trk" type="hidden" />
+          <input name="authUUID" type="hidden" />
+          <input
+            name="session_redirect"
+            value="https://www.linkedin.com/company/chubbies-shorts/about/"
+            type="hidden"
+          />
+          <input name="loginCsrfParam" value="2715f7d6-47ce-4bd8-8ba8-14f5e7705776" type="hidden" />
+          <input name="fp_data" value="default" id="fp_data_login" type="hidden" />
+          <input name="apfc" value="{}" id="apfc-login" type="hidden" />
+          <input name="_d" value="d" type="hidden" />
+          <input name="showGoogleOneTapLogin" value="true" type="hidden" />
+          <input name="showAppleLogin" value="true" type="hidden" />
+          <input name="showMicrosoftLogin" value="true" type="hidden" />
+          <code id="i18nShow" style="display: none"></code>
+          <code id="i18nHide" style="display: none"></code>
+          <input name="controlId" value="d_checkpoint_lg_consumer_login-login_submit_button" type="hidden" />
+
+          <code id="consumer_login__text_plain__empty_password" style="display: none"></code>
+          <code id="consumer_login__text_plain__small_password" style="display: none"></code>
+          <code id="consumer_login__text_plain__large_password" style="display: none"></code>
+          <code id="consumer_login__text_plain__wrong_password" style="display: none"></code>
+          <code id="consumer_login__text_plain__large_password_200_chars" style="display: none"></code>
+
+          <div class="form__input--floating margin-top-24">
+            <input
+              id="password"
+              aria-describedby="error-for-password"
+              name="session_password"
+              required
+              validation="password"
+              autocomplete="current-password"
+              aria-label="Password"
+              type="password"
+            />
+            <label for="password" class="form__label--floating" aria-hidden="true">Password</label>
+            <span id="password-visibility-toggle" class="button__password-visibility" role="button" tabindex="0">
+              Show
+            </span>
+            <div
+              error-for="password"
+              id="error-for-password"
+              class="form__label--error hidden__imp"
+              role="alert"
+              aria-live="assertive"
+            ></div>
+          </div>
+
+          <a
+            href="/checkpoint/rp/request-password-reset?session_redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Fcompany%2Fchubbies-shorts%2Fabout%2F"
+            id="reset-password-button"
+            class="btn__tertiary--medium forgot-password"
+            data-cie-control-urn="forgot-password-btn"
+          >
+            Forgot password?
+          </a>
+
+          <div class="remember_me__opt_in">
+            <input
+              name="rememberMeOptIn"
+              id="rememberMeOptIn-checkbox"
+              class="large-input"
+              checked
+              value="true"
+              type="checkbox"
+            />
+            <label for="rememberMeOptIn-checkbox">Keep me logged in</label>
+          </div>
+
+          <div class="login__form_action_container">
+            <button
+              class="btn__primary--large from__button--floating"
+              data-litms-control-urn="login-submit"
+              aria-label="Sign in"
+              type="submit"
+            >
+              Sign in
+            </button>
+          </div>
+        </form>
+
+        <code id="lix_checkpoint_reset_password_username_autofill" style="display: none"></code>
+      </div>
+
+      <div id="otp-div" class="hidden__imp">
+        <div class="otp-success-container">
+          <h2 class="otp__header__content">
+            We’ve emailed a one-time link to your primary email address
+          </h2>
+          <p class="medium_text subheader__content">
+            Click on the link to sign in instantly to your LinkedIn account.
+          </p>
+          <div class="mailbox__logo" aria-hidden="true"></div>
+          <p class="medium_text footer__content">
+            If you don’t see the email in your inbox, check your spam folder.
+          </p>
+          <button class="resend-button margin-top-12" id="btn-resend-otp" aria-label="Resend email" type="button">
+            Resend email
+          </button>
+          <button class="otp-back-button" id="otp-cancel-button" aria-label="Back">Back</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="join-now">
+      New to LinkedIn?
+      <a
+        href="/signup/cold-join?session_redirect&#61;https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fchubbies-shorts%2Fabout%2F"
+        class="btn__tertiary--medium join-now-v2__btn"
+        id="join_now"
+        data-litms-control-urn="login_join_now"
+        data-cie-control-urn="join-now-btn"
+      >
+        Join now
+      </a>
+    </div>
+
+    <div id="checkpointGoogleOneTapContainerId" class="googleOneTapContainer global-alert-offset">
+      <div class="google-one-tap-module hidden__imp">
+        <div class="google-one-tap-module__outline">
+          <p class="google-one-tap-module__header text-md font-bold text-color-text">Agree &amp; Join LinkedIn</p>
+          <p class="google-one-tap-module__text">
+            By clicking Continue, you agree to LinkedIn’s
+            <a href="/legal/user-agreement" target="_blank" data-tracking-will-navigate="true">User Agreement</a>,
+            <a href="/legal/privacy-policy" target="_blank" data-tracking-will-navigate="true">Privacy Policy</a>, and
+            <a href="/legal/cookie-policy" target="_blank" data-tracking-will-navigate="true">Cookie Policy</a>.
+          </p>
+        </div>
+        <div id="google-one-tap__container"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer__base" role="contentinfo">
+    <div class="footer__base__wrapper">
+      <p class="copyright">
+        <li-icon size="14dp" alt="LinkedIn" aria-hidden="true" type="linkedin-logo"></li-icon>
+        <em>
+          <span class="a11y__label">LinkedIn</span>
+          © 2025
+        </em>
+      </p>
+
+      <div>
+        <ul class="footer__base__nav-list" aria-label="Footer Legal Menu">
+          <li><a href="/legal/user-agreement?trk=d_checkpoint_lg_consumer_login_ft_user_agreement">User Agreement</a></li>
+          <li><a href="/legal/privacy-policy?trk=d_checkpoint_lg_consumer_login_ft_privacy_policy">Privacy Policy</a></li>
+          <li>
+            <a href="/legal/california-privacy-disclosure?trk=d_checkpoint_lg_consumer_login_ft_california_privacy_choices">
+              Your California Privacy Choices
+            </a>
+          </li>
+          <li>
+            <a href="/help/linkedin/answer/34593?lang=en&amp;trk=d_checkpoint_lg_consumer_login_ft_community_guidelines">
+              Community Guidelines
+            </a>
+          </li>
+          <li><a href="/legal/cookie-policy?trk=d_checkpoint_lg_consumer_login_ft_cookie_policy">Cookie Policy</a></li>
+          <li><a href="/legal/copyright-policy?trk=d_checkpoint_lg_consumer_login_ft_copyright_policy">Copyright Policy</a></li>
+          <li id="feedback-request">
+            <a href="/help/linkedin?trk=d_checkpoint_lg_consumer_login_ft_send_feedback&amp;lang=en" target="_blank" rel="nofollow noreferrer noopener">
+              Send Feedback
+            </a>
+          </li>
+
+          <li>
+            <div class="language-selector">
+              <button class="language-selector__button" aria-expanded="false">
+                <span class="language-selector__label-text">Language</span>
+                <i class="language-selector__label-icon"></i>
+              </button>
+
+              <div class="language-selector__dropdown hidden__imp">
+                <ul>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="العربية (Arabic) 1 of 36" role="button" data-locale="ar_AE" type="button">العربية (Arabic)</button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="বাংলা (Bangla) 2 of 36" role="button" data-locale="bn_IN" type="button">বাংলা (Bangla)</button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="Čeština (Czech) 3 of 36" role="button" data-locale="cs_CZ" type="button">Čeština (Czech)</button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="Dansk (Danish) 4 of 36" role="button" data-locale="da_DK" type="button">Dansk (Danish)</button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="Deutsch (German) 5 of 36" role="button" data-locale="de_DE" type="button">Deutsch (German)</button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="Ελληνικά (Greek) 6 of 36" role="button" data-locale="el_GR" type="button">Ελληνικά (Greek)</button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link language-selector__link--selected" aria-label="English (English) 7 of 36 selected" role="button" data-locale="en_US" type="button">
+                      <strong>English (English)</strong>
+                    </button>
+                  </li>
+                  <li class="language-selector__item">
+                    <button class="language-selector__link" aria-label="Español (Spanish) 8 of 36" role="button" data-locale="es_ES" type="button">Español (Spanish)</button>
