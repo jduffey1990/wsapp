@@ -18,7 +18,7 @@ export default {
 
     // --- SECOND SERVICE (e.g., Brackets Service) ---
     const businessVerificationApi = axios.create({
-      baseURL: import.meta.env.VITE_BRANDORA_VERIFY, // e.g. http://localhost:3002 or prod env setting
+      baseURL: import.meta.env.VITE_BRANDORA_VERIFY_API_URL, // e.g. http://localhost:3002 or prod env setting
       withCredentials: true,
     });
 

@@ -3,15 +3,7 @@
     <v-card-text>
       <Transition name="fade-transition" mode="out-in">
         <BrandAccountCreate
-          v-if="isBrand"
           @brand-linked="onBrandLinked"
-          @cancel="$emit('cancel')"
-          @created="onCreated"
-          @joined="onJoined"
-        />
-        <RetailAccountCreate
-          v-else
-          @retail-linked="onRetailLinked"
           @cancel="$emit('cancel')"
           @created="onCreated"
           @joined="onJoined"
@@ -27,6 +19,7 @@ import {storeToRefs} from 'pinia';
 import BrandAccountCreate from './BrandAccountCreate.vue'
 import RetailAccountCreate from './RetailAccountCreate.vue'
 import {useUserStore} from '@/store/user';
+
 const userStore = useUserStore();
 const {isBrand} = storeToRefs(userStore);
 

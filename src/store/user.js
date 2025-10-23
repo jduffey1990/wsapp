@@ -1,11 +1,12 @@
 // store/user.js
 import router from '@/router';
-import { defineStore } from 'pinia';
+import { defineStore} from 'pinia';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
+    company: JSON.parse(localStorage.getItem('company')) || null,
   }),
   
   getters: {
@@ -93,6 +94,29 @@ export const useUserStore = defineStore('user', {
         throw error;
       }
     },
+
+    async createUser(userData) {
+      try {
+        console.log('Creating user with data:', userData);
+        
+        const response = await this.$users.post('/create-user', userData);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+
+        const user = response
+        console.log('User created successfully:', user);
+        
+        return user;
+      } catch (error) {
+        console.error('Create user error:', error);
+        throw error;
+      }
+    },
+
+
 
     /**
      * ✅ Smart session check - only calls API if needed

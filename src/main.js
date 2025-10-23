@@ -7,6 +7,7 @@ import {createPinia} from 'pinia';
 import router from './router';
 import vuetify from './plugins/vuetify';
 import {useUserStore} from './store/user';
+import {useCompanyStore} from './store/company';
 import {useOverlayStore} from './store/overlay';
 
 const app = createApp(App);
@@ -26,6 +27,8 @@ pinia.use(({store}) => {
 (async () => {
     // Initialize the user store and fetch session info
     const userStore = useUserStore();
+    const companyStore = useCompanyStore();
+
     const overlayStore = useOverlayStore();
     await userStore.getSession();
 

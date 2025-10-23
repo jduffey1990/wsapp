@@ -88,7 +88,6 @@ const {user, isLoggedIn, isFirmAdminOrGreater, isSuper} = storeToRefs(
 
 const logout = async () => {
   await useUserStore().logout();
-  router.push('/login');
 };
 
 const scrollPosition = ref(0);

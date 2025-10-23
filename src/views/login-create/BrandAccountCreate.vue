@@ -22,13 +22,40 @@
         <br />
 
 
-        <!-- Account fields live inside the SAME v-form -->
-        <ProfileAccountFields
-          v-model="accountForm"       
-          :disabled="loading"
-          @valid="accountValid = $event"
-          ref="accountRef"
+        <!-- Just the fields; NO v-form here -->
+        <v-text-field v-model.trim="accountForm.firstName" label="First Name"/>
+        <v-text-field v-model.trim="accountForm.lastName"  label="Last Name" />
+        <v-text-field
+          v-model.trim="accountForm.email"
+          label="Email"
+          type="email"
+          :rules="[emailRequired, emailFormat]"
+          persistent-hint
         />
+
+        <v-text-field
+          v-model.trim="passwordOne"
+          :type="showPass ? 'text' : 'password'"
+          label="Enter New Password"
+          :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+          @click:append="showPass = !showPass"
+        />
+        <v-text-field
+          v-model.trim="passwordTwo"
+          :type="showPass ? 'text' : 'password'"
+          label="Re-enter Password"
+          :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+          @click:append="showPass = !showPass"
+        />
+
+        <div class="text-caption mt-2">
+          <v-icon :color="rules.longerThan8 ? 'green' : 'red'">mdi-check-circle</v-icon> ≥ 9 chars
+          <v-icon :color="rules.special ? 'green' : 'red'">mdi-check-circle</v-icon> special char
+          <v-icon :color="rules.number ? 'green' : 'red'">mdi-check-circle</v-icon> number
+          <v-icon :color="rules.mixed ? 'green' : 'red'">mdi-check-circle</v-icon> upper & lower
+          <v-icon :color="rules.match ? 'green' : 'red'">mdi-check-circle</v-icon> match
+        </div>
+      
         <div class="d-flex justify-end ga-2 mt-4">
           <v-btn variant="text" @click="$emit('cancel')">Cancel</v-btn>
           <v-btn color="primary" type="submit" :loading="loading" :disabled="!canJoin">
@@ -61,7 +88,7 @@
               label="Business website URL"
               type="url"
               placeholder="https://brand.com"
-              :rules="[rules.url]"
+              :rules="[rulesUrl.url]"
               persistent-hint
               hint="Tip: Use your main landing page"
             />
@@ -82,7 +109,7 @@
               v-model.trim="verify.payload.linkedin"
               label="Linkedin URL"
               placeholder="https://www.linkedin.com/company/.../"
-              :rules="[rules.url]"
+              :rules="[rulesUrl.url]"
               persistent-hint
               hint="We’ll attempt a quick lookup preview"
             />
@@ -91,12 +118,38 @@
         </v-expand-transition>
 
         <!-- Account fields live inside SAME v-form -->
-        <ProfileAccountFields
-          v-model="accountForm"
-          :disabled="loading"
-          @valid="accountValid = $event"
-          ref="accountRef"
+        <v-text-field v-model.trim="accountForm.firstName" label="First Name"/>
+        <v-text-field v-model.trim="accountForm.lastName"  label="Last Name" />
+        <v-text-field
+          v-model.trim="accountForm.email"
+          label="Email"
+          type="email"
+          :rules="[emailRequired, emailFormat]"
+          persistent-hint
         />
+
+        <v-text-field
+          v-model.trim="passwordOne"
+          :type="showPass ? 'text' : 'password'"
+          label="Enter New Password"
+          :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+          @click:append="showPass = !showPass"
+        />
+        <v-text-field
+          v-model.trim="passwordTwo"
+          :type="showPass ? 'text' : 'password'"
+          label="Re-enter Password"
+          :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+          @click:append="showPass = !showPass"
+        />
+
+        <div class="text-caption mt-2">
+          <v-icon :color="rules.longerThan8 ? 'green' : 'red'">mdi-check-circle</v-icon> ≥ 9 chars
+          <v-icon :color="rules.special ? 'green' : 'red'">mdi-check-circle</v-icon> special char
+          <v-icon :color="rules.number ? 'green' : 'red'">mdi-check-circle</v-icon> number
+          <v-icon :color="rules.mixed ? 'green' : 'red'">mdi-check-circle</v-icon> upper & lower
+          <v-icon :color="rules.match ? 'green' : 'red'">mdi-check-circle</v-icon> match
+        </div>
 
         <div class="d-flex justify-end ga-2 mt-4">
           <v-btn variant="text" @click="$emit('cancel')">Cancel</v-btn>
@@ -410,14 +463,31 @@
         </v-dialog>
       </v-window-item>
     </v-window>
+    <!-- reCAPTCHA badge notice (optional, for transparency) -->
+    <div class="text-caption text-medium-emphasis mt-4">
+      This site is protected by reCAPTCHA and the Google
+      <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+      <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+    </div>
   </v-form>
 </template>
 
 <script setup>
-import { inject, reactive, ref, computed } from 'vue'
-import ProfileAccountFields from './ProfileAccountFields.vue'
+import { inject, reactive, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import MapboxMap from '@/components/MapBoxMap.vue'
+import { useUserStore } from '@/store/user'
+import {useCompanyStore} from '@/store/company';
+import { stringIsEmail } from '@/utils/string'
+const companyStore = useCompanyStore();
 const showToast = inject('toast')?.show
+
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+const userStore = useUserStore()
+const { company } = storeToRefs(useCompanyStore())
+let recaptchaReady = false
+
+
 
 //EMITS
 const emit = defineEmits(['brand-linked', 'cancel', "created", "joined"])
@@ -459,13 +529,57 @@ const brandForm = reactive({
   name: '',
   website: '',
 })
+
+
+
+// 3. account form
+/**
+ * HTML data nested in accountForm
+ * Checks validity of the items in the form
+ */
+
 const accountForm = reactive({
   firstName: '',
   lastName: '',
-  username: '',
   email: '',
   password: ''
 })
+
+const passwordOne = ref('')
+const passwordTwo = ref('')
+const showPass = ref(false)
+
+//password rules
+const rules = reactive({
+  longerThan8: false,
+  special: false,
+  number: false,
+  mixed: false,
+  match: false,
+})
+
+//email validation script
+const emailRequired = v => !!v || 'Email is required.'
+const emailFormat   = v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Enter a valid email.'
+
+function same(a, b) {
+  if (!a || !b) return false
+  return a.firstName === b.firstName &&
+         a.lastName  === b.lastName  &&
+         a.email     === b.email     &&
+         a.password  === b.password
+}
+
+const clientReady = computed(() =>
+  !!accountForm.firstName && !!accountForm.lastName && !!accountForm.email
+)
+const passwordReady = computed(() =>
+  rules.longerThan8 && rules.special && rules.number && rules.mixed && rules.match
+)
+const emailOK = computed(() => stringIsEmail(accountForm.email || ''))
+
+const isValid = computed(() => clientReady.value && passwordReady.value && emailOK.value)
+
 const accountValid = ref(false)
 const accountRef = ref(null)
 
@@ -475,17 +589,40 @@ const createdBrand = ref(null)
 // Parent-level gating for the “Create Brand”  or "Join Brand" submit
 
 const canJoin = computed(() =>
-  !!passcode.value && accountValid.value && !loading.value
+  !!passcode.value && isValid.value && !loading.value
 )
 const canCreate = computed(() =>
-  !!brandForm.name && accountValid.value && !loading.value
+  !!brandForm.name && isValid.value && !loading.value
 )
 
 /* Basic client-side rules (augment as needed) */
-const rules = {
+const rulesUrl = {
   url: v => !v || /^https?:\/\/[^ "]+$/i.test(v) || 'Enter a valid URL (https://...)',
 }
 
+watch([passwordOne, passwordTwo], () => {
+  const p = passwordOne.value || ''
+  rules.longerThan8 = p.length > 8
+  rules.special = /[!@#$%^&*(),.?":{}|<>]/.test(p)
+  rules.number = /\d/.test(p)
+  rules.mixed = /[a-z]/.test(p) && /[A-Z]/.test(p)
+  rules.match = passwordOne.value === passwordTwo.value && passwordOne.value !== ''
+  
+  // This line updates the password in accountForm when they match
+  accountForm.password = rules.match ? passwordOne.value : ''
+}, { immediate: true })
+
+watch(canJoin, (val) => {
+  console.log('canJoin:', val)
+  console.log('passcode:', passcode.value)
+  console.log('isValid:', isValid.value)
+  console.log('  - clientReady:', clientReady.value)
+  console.log('  - passwordReady:', passwordReady.value)
+  console.log('  - emailOK:', emailOK.value)
+  console.log('  - accountForm:', accountForm)
+  console.log('  - rules:', rules)
+  console.log('loading:', loading.value)
+}, { immediate: true })
 
 
 function normalizeWebsite (url) {
@@ -501,21 +638,47 @@ function decodeHtml(str = '') {
 }
 
 
-async function joinBrandDuped () {
-  console.log("passscode", passcode.value)
+async function joinBrandDuped() {
+  console.log("passcode", passcode.value)
   if (!passcode.value) return
+  
   loading.value = true
   try {
-    const { id, name } = { id: 75848949, name: 'Duffey\'s Dapper Duds' }
-    showToast?.({ message: `Joined ${name}. Please verify your account in your linked email inbox, and then log in. Redirecting…`, timeout:6000 })
-    emit('brand-linked', { id, name })
+    // Get CAPTCHA token
+    const captchaToken = await getCaptchaToken('join_brand')
+    
+    // Set company data from passcode lookup (duped for now)
+    // TODO: Replace with actual API call that verifies passcode
+    const companyData = { 
+      id: "019a132b-8787-7fa4-876e-d8cf78a0be97",
+      name: 'Duffey\'s Dapper Duds' 
+    }
+    
+    // Set company in your Pinia store
+    companyStore.setCompanyData(companyData)
+    createdBrand.value = companyData
+    
+    // Create user with real API
+    const userPayload = {
+      ...accountForm,
+      name: `${accountForm.firstName} ${accountForm.lastName}`,
+      companyId: companyData.id, // Associate with company
+      captchaToken // Send token to backend
+    }
+    
+    await userStore.createUser(userPayload)
+    
+    showToast?.({ 
+      message: `Joined ${companyData.name}. Please verify your account in your email inbox.`, 
+      timeout: 6000 
+    })
+    emit('brand-linked', companyData)
     emit('joined')
   } catch (e) {
-  console.error('joinBrandDuped error:', e)
-  const msg = e?.response?.data?.message ?? e?.message ?? 'Unexpected error'
-  showToast?.({ message: msg, error: true })
-  }
- finally {
+    console.error('joinBrandDuped error:', e)
+    const msg = e?.response?.data?.message ?? e?.message ?? 'Unexpected error'
+    showToast?.({ message: msg, error: true })
+  } finally {
     loading.value = false
   }
 }
@@ -539,16 +702,18 @@ async function createBrandDuped () {
     }
     const brand = { id: 75848949, name: 'Duffey\'s Dapper Duds' } // fake
     createdBrand.value = brand
+    companyStore.setCompanyData(brand)
 
     // 2) Create the user (use the data coming from child via v-model)
     const userPayload = {
       ...accountForm,
       name: `${accountForm.firstName} ${accountForm.lastName}`,
-      brandId: brand.id
+      brandId: brand.id,
+      captchaToken // Send token to backend
     }
 
-    // Fake request wait
-    await new Promise(r => setTimeout(r, 500))
+    // real request
+    await userStore.createUser(userPayload)
 
     showToast?.({ message: `Brand ${brand.name} created. Account created. Please verify your account in your linked email inbox, and then log in.  Redirecting…`, timeout:6000 })
     emit('brand-linked', { id: brand.id, name: brand.name })
@@ -657,5 +822,66 @@ const onSubmit = async () => {
     showToast?.({ message: 'Unexpected error. See console.', error: true })
   }
 }
+
+// 3. reCAPTCHA HELPER FUNCTION
+/**
+ * Get a reCAPTCHA token for the given action
+ * @param {string} action - The action name (e.g., 'join_brand', 'create_brand')
+ * @returns {Promise<string|null>} The reCAPTCHA token or null if unavailable
+ */
+async function getCaptchaToken(action) {
+  if (!RECAPTCHA_SITE_KEY) {
+    console.warn('Skipping CAPTCHA - no site key configured')
+    return null
+  }
+
+  if (!recaptchaReady || !window.grecaptcha) {
+    console.warn('reCAPTCHA not ready yet')
+    return null
+  }
+
+  try {
+    const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action })
+    return token
+  } catch (error) {
+    console.error('reCAPTCHA error:', error)
+    showToast?.({ 
+      message: 'Security verification failed. Please try again.', 
+      error: true 
+    })
+    return null
+  }
+}
+
+// LIFECYCLE HOOKS
+onMounted(() => {
+  if (!RECAPTCHA_SITE_KEY) {
+    console.warn('VITE_RECAPTCHA_SITE_KEY not set. CAPTCHA will be skipped.')
+    return
+  }
+
+  // Load reCAPTCHA script
+  if (!window.grecaptcha) {
+    const script = document.createElement('script')
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`
+    script.async = true
+    script.defer = true
+    script.onload = () => {
+      recaptchaReady = true
+    }
+    document.head.appendChild(script)
+  } else {
+    recaptchaReady = true
+  }
+})
+
+onBeforeUnmount(() => {
+  // Hide the reCAPTCHA badge when component unmounts
+  const badge = document.querySelector('.grecaptcha-badge')
+  if (badge) {
+    badge.style.visibility = 'hidden'
+  }
+})
+
 
 </script>
