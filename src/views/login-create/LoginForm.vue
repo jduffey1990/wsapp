@@ -31,6 +31,7 @@ const loading = ref(false)
 async function loginUser () {
   loading.value = true
   try {
+    await login(credentials);
     emit('success')
   } catch (error) {
     const msg = error?.response?.data?.message || 'Login failed. Please try again.'

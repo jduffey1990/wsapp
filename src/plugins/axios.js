@@ -7,7 +7,7 @@ export default {
     
     // --- FIRST SERVICE (e.g., Auth Service) ---
     const usersApi = axios.create({
-      baseURL: import.meta.env.VITE_USERS_BASE_URL, // e.g. http://localhost:3001 or https://my-auth-service.com
+      baseURL: import.meta.env.VITE_USERS_BASE_URL, // e.g. http://localhost:3001 or prod env setting
       withCredentials: true,
     });
 
@@ -17,22 +17,22 @@ export default {
     });
 
     // --- SECOND SERVICE (e.g., Brackets Service) ---
-    const bracketsApi = axios.create({
-      baseURL: import.meta.env.VITE_BRACKETS_BASE_URL, // e.g. http://localhost:3002 or https://my-brackets-service.com
+    const businessVerificationApi = axios.create({
+      baseURL: import.meta.env.VITE_BRANDORA_VERIFY, // e.g. http://localhost:3002 or prod env setting
       withCredentials: true,
     });
 
-    bracketsApi.interceptors.request.use((config) => {
+    businessVerificationApi.interceptors.request.use((config) => {
       config.headers['X-CSRFToken'] = cookies.get('csrftoken');
       return config;
     });
 
     // Make them available in the Vue app
     app.config.globalProperties.$usersApi = usersApi;
-    app.config.globalProperties.$bracketsApi = bracketsApi;
+    app.config.globalProperties.$businessVerificationApi = businessVerificationApi;
 
     app.provide('$usersApi', usersApi);
-    app.provide('$bracketsApi', bracketsApi);
+    app.provide('$businessVerificationApi', businessVerificationApi);
   },
 };
 

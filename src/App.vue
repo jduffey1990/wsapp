@@ -36,7 +36,7 @@ import {inject, ref} from 'vue';
 
 const $axios = inject('$axios');
 const $users = inject('$usersApi')
-const $brackets = inject('$bracketsApi')
+const $businessVerification = inject('$businessVerificationApi')
 
 import { useUserStore } from '@/store/user'
 import { useOverlayStore } from '@/store/overlay'

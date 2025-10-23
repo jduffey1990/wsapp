@@ -20,7 +20,7 @@ app.use(vuetify);
 
 pinia.use(({store}) => {
     store.$users = app.config.globalProperties.$usersApi;
-    store.$brackets =  app.config.globalProperties.$bracketsApi;
+    store.$businessVerification = app.config.globalProperties.$businessVerificationApi;
 });
 
 (async () => {

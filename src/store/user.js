@@ -7,10 +7,7 @@ import {useCookies} from 'vue3-cookies';
 
 export const useUserStore = defineStore('user', {
     state: () => ({
-        user: {
-            email: null,
-            businessType: '',
-        },
+        user: JSON.parse(localStorage.getItem('user')) || null,
         token: localStorage.getItem('token') || null,
         llmCache: {}
     }),
@@ -35,26 +32,26 @@ export const useUserStore = defineStore('user', {
         async login(credentials) {
             try {
                 const response = await this.$users({
-                    method: 'post',
-                    url: '/login',
-                    data: credentials,
+                method: 'post',
+                url: '/login',
+                data: credentials,
                 });
-                const tokenReturned = response.data.token;
-                const userReturned = response.data.user
                 
-                localStorage.setItem('token', tokenReturned);
-                this.user = userReturned
-                this.token = tokenReturned
-
-                // 3) (Optional) Attach token to axios defaults so all future requests include it
-                this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-                this.$brackets.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-
-                router.push('/dashboard');
+                const { token, user } = response.data;
+                
+                // Store token and user
+                localStorage.setItem('token', token);
+                this.user = user;
+                this.token = token;
+                
+                // Set authorization headers for all APIs
+                this.$users.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                
+                return user;  // Return for confirmation
             } catch (error) {
-                // Re-throw the error to be caught in `loginUser`
-                throw error;
-                console.error(error)
+                console.error('Login error:', error);
+                throw error;  // Re-throw for component to handle
             }
         },
         async loginDuped(credentials) {
@@ -70,7 +67,7 @@ export const useUserStore = defineStore('user', {
             if (!this.token) return;
                 // Set the token to axios defaults
             this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-            this.$brackets.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+            this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
             try {
                 // Request an endpoint that verifies the token and returns user info
                 const response = await this.$users.get('/session');
@@ -91,7 +88,7 @@ export const useUserStore = defineStore('user', {
 
             // 4) Remove Authorization header from Axios (optional)
             delete this.$users.defaults.headers.common['Authorization'];
-            delete this.$brackets.defaults.headers.common['Authorization'];
+            delete this.$businessVerification.defaults.headers.common['Authorization'];
 
             // 5) Redirect to login
             router.push('/login');

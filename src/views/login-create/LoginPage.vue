@@ -53,11 +53,14 @@ import CreateAccountForm from './CreateAccountForm.vue'
 const showCreate = ref(false)
 const router = useRouter()
 
-function onLoginSuccess () {
-  // route to dashboard or where you want
-  user.value = { ...user.value, email: 'loggedinuser@gmail.com' }
+function onLoginSuccess() {
+  if (!user.value?.id) {
+    show({ message: 'Login error: Invalid user data', error: true })
+    return
+  }
+  
   show({ message: 'Login Successful! Redirecting...', error: false })
-  setTimeout(() => router.push('/dashboard'), 2000)
+  setTimeout(() => router.push('/dashboard'), 1000)
 }
 
 function onJoined () {
