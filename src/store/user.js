@@ -1,97 +1,154 @@
+// store/user.js
 import router from '@/router';
-import {defineStore} from 'pinia';
-
-import {useCookies} from 'vue3-cookies';
-
-
+import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', {
-    state: () => ({
-        user: JSON.parse(localStorage.getItem('user')) || null,
-        token: localStorage.getItem('token') || null,
-        llmCache: {}
-    }),
-    getters: {
-        isLoggedIn: (state) => !!state.user.email,
-        businessType: (state) => state.user?.businessType || '',
-        isBrand: (state) => state.user?.businessType === 'brand',
-        isRetail: (state) => state.user?.businessType === 'retail',
+  state: () => ({
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null,
+  }),
+  
+  getters: {
+    isLoggedIn: (state) => !!state.user?.email,
+    businessType: (state) => state.user?.businessType || '',
+    isBrand: (state) => state.user?.businessType === 'brand',
+    isRetail: (state) => state.user?.businessType === 'retail',
+  },
+  
+  actions: {
+    /**
+     * Decode JWT to extract payload (including expiration)
+     */
+    decodeToken(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+      }
     },
-    actions: {
-        getCachedResponse(id) {
-            return this.llmCache[id] || null;
-          },
-        setCachedResponse(id, response) {
-        this.llmCache[id] = response;
-        console.log("description cached for id")
-        },
-        setBusinessType(type) {
-            if (!this.user) this.user = {}
-            this.user.businessType = type
-        },
-        async login(credentials) {
-            try {
-                const response = await this.$users({
-                method: 'post',
-                url: '/login',
-                data: credentials,
-                });
-                
-                const { token, user } = response.data;
-                
-                // Store token and user
-                localStorage.setItem('token', token);
-                this.user = user;
-                this.token = token;
-                
-                // Set authorization headers for all APIs
-                this.$users.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                
-                return user;  // Return for confirmation
-            } catch (error) {
-                console.error('Login error:', error);
-                throw error;  // Re-throw for component to handle
-            }
-        },
-        async loginDuped(credentials) {
-            try {
-                router.push('/dashboard');
-            } catch (error) {
-                // Re-throw the error to be caught in `loginUser`
-                throw error;
-                console.error(error)
-            }
-        },
-        async getSession() {
-            if (!this.token) return;
-                // Set the token to axios defaults
-            this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-            this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-            try {
-                // Request an endpoint that verifies the token and returns user info
-                const response = await this.$users.get('/session');
-                this.user = response.data.user;
-            } catch (error) {
-                // If the token is invalid or expired, clear stored info
-                this.token = null;
-                this.user = {};
-                localStorage.removeItem('token');
-            }
-        },
-        async logout(apiInstance) {
-            this.user = {};
-            this.token = null;
 
-            // 3) Remove token from local storage 
-            localStorage.removeItem('token');
-
-            // 4) Remove Authorization header from Axios (optional)
-            delete this.$users.defaults.headers.common['Authorization'];
-            delete this.$businessVerification.defaults.headers.common['Authorization'];
-
-            // 5) Redirect to login
-            router.push('/login');
-        },
+    /**
+     * Check if token is expired
+     */
+    isTokenExpired(token) {
+      const decoded = this.decodeToken(token);
+      if (!decoded || !decoded.exp) return true;
+      
+      // exp is in seconds, Date.now() is in milliseconds
+      return decoded.exp * 1000 < Date.now();
     },
+
+    /**
+     * Set auth data and persist to localStorage
+     */
+    setAuthData(token, user) {
+      this.token = token;
+      this.user = user;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // Set authorization headers
+      this.$users.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    },
+
+    /**
+     * Clear auth data
+     */
+    clearAuth() {
+      this.user = null;
+      this.token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      delete this.$users.defaults.headers.common['Authorization'];
+      delete this.$businessVerification.defaults.headers.common['Authorization'];
+    },
+
+    setBusinessType(type) {
+      if (!this.user) this.user = {};
+      this.user.businessType = type;
+      // Update localStorage
+      localStorage.setItem('user', JSON.stringify(this.user));
+    },
+
+    async login(credentials) {
+      try {
+        const response = await this.$users.post('/login', credentials);
+        const { token, user } = response.data;
+        
+        this.setAuthData(token, user);
+        return user;
+      } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * ✅ Smart session check - only calls API if needed
+     */
+    async getSession() {
+      // No token? Clear and return
+      if (!this.token) {
+        this.clearAuth();
+        return;
+      }
+
+      // ✅ Check if token is expired
+      if (this.isTokenExpired(this.token)) {
+        console.log('Token expired, clearing auth');
+        this.clearAuth();
+        return;
+      }
+
+      // ✅ Token is valid and we have cached user data
+      if (this.user && this.user.email) {
+        console.log('✅ Using cached user data, token still valid');
+        
+        // Set headers for authenticated requests
+        this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        
+        return; // ✅ No API call needed!
+      }
+
+      // Token valid but no user data cached - fetch from server
+      try {
+        this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        
+        const response = await this.$users.get('/session');
+        const { user } = response.data;
+        
+        // Update cache
+        this.user = user;
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+      } catch (error) {
+        console.error('Session validation failed:', error);
+        this.clearAuth();
+      }
+    },
+
+    async logout() {
+      try {
+        await this.$users.post('/logout');
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+      
+      this.clearAuth();
+      router.push('/login');
+    },
+  },
 });
