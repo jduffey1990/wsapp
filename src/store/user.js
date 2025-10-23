@@ -140,6 +140,25 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    async updateUser(updates) {
+      console.log('Updating user with:', updates);
+      try {  
+        // Call the backend endpoint
+        const response = await this.$users.patch('/edit-user', updates)
+        
+        // Update the local user state with the returned data
+        if (response.data) {
+          this.user = response.data
+        }
+
+        console.log('User updated successfully:', response.data);
+        
+        return response.data
+      } catch (error) {
+        console.error('Update user error:', error)
+        throw error
+      }
+    },
     async logout() {
       try {
         await this.$users.post('/logout');

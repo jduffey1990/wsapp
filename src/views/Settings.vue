@@ -204,20 +204,21 @@ import brandlogo from '@/assets/brandora.png'
 /* ===== Injects / stores ===== */
 const $users = inject('$usersApi')
 const { show } = inject('toast')
+const userStore = useUserStore()
 const { user } = storeToRefs(useUserStore())
 
 /* ===== Settings (existing) ===== */
 const isEditing = ref(false)
 const account = ref({
-  firstName: 'Lori',
-  lastName: 'Lightfoot',
-  email: 'loggedinuser@gmail.com',
+  firstName: '',
+  lastName: '',
+  email: '',
 })
 const accountCopy = ref({ ...account.value })
 
 const getUser = async () => {
   try {
-    const response = await $users.get(`/get-user?id=${user.value._id}`)
+    const response = await $users.get(`/get-user?id=${user.value.id}`)
     const userReturned = response.data
     const arrayOfNames = userReturned.name.split(' ')
     account.value.firstName = arrayOfNames[0]
@@ -236,8 +237,11 @@ const cancelEdit = () => {
 }
 const hasUnsavedChanges = () => JSON.stringify(account.value) !== JSON.stringify(accountCopy.value)
 const saveProfile = async () => {
+  console.log('Saving profile...')
   try {
     accountCopy.value = { ...account.value }
+    // Call the store action instead
+    await userStore.updateUser(account.value)
     show?.({ message: 'Account saved!' })
     isEditing.value = false
   } catch (error) {
