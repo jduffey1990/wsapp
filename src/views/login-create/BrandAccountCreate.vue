@@ -166,297 +166,87 @@
         </div>
 
         <!-- Verify & Confirm dialog -->
-        <v-dialog v-model="verify.dialogOpen" max-width="720">
+        <v-dialog v-model="verify.dialogOpen" max-width="640" scrollable>
           <v-card>
-            <v-card-title class="text-h6">Verify details</v-card-title>
-            <v-card-subtitle v-if="verify.method" class="px-4">
-              Method: <strong class="text-capitalize">{{ verify.method }}</strong>
-            </v-card-subtitle>
+            <!-- Header -->
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div>
+                <div class="text-h6">Verify Brand Details</div>
+                <div v-if="verify.method" class="text-caption text-medium-emphasis mt-1">
+                  Verification method: <span class="text-capitalize font-weight-medium">{{ verify.method }}</span>
+                </div>
+              </div>
+              <v-btn
+                icon="mdi-close"
+                variant="text"
+                size="small"
+                @click="verify.dialogOpen = false"
+              />
+            </v-card-title>
 
-            <v-card-text>
-              <v-skeleton-loader
-                v-if="verify.loadingPreview"
-                type="image, list-item-two-line, list-item-two-line"
+            <v-divider />
+
+            <!-- Content -->
+            <v-card-text class="pa-4">
+              <!-- Use the new dynamic component -->
+              <CompanyPreviewCard
+                :data="verify.preview"
+                :loading="verify.loadingPreview"
               />
 
-              <div v-else>
-                <!-- ===== URL ===== -->
-                <template v-if="verify.preview?.kind === 'url'">
-                  <div class="d-flex align-start ga-3 mb-3">
-                    <v-img
-                      :src="verify.preview.image || verify.preview.meta?.image || verify.preview.favicon"
-                      width="48" height="48" class="rounded" cover
-                    />
-                    <div class="min-w-0">
-                      <!-- host -->
-                      <div class="text-caption text-medium-emphasis">{{ verify.preview.host }}</div>
-
-                      <!-- title / name -->
-                      <div class="font-weight-medium text-truncate">
-                        {{ decodeHtml(verify.preview.name || verify.preview.meta?.title) || verify.preview.url }}
-                      </div>
-
-                      <!-- description (prefer normalized/enriched, else OG) -->
-                      <div class="text-body-2 text-truncate-2 mt-1"
-                          v-if="verify.preview.shortDescription || verify.preview.meta?.description || verify.preview.enrichment?.shortDescription">
-                        {{
-                          decodeHtml(
-                            verify.preview.shortDescription
-                            || verify.preview.enrichment?.shortDescription
-                            || verify.preview.meta?.description
-                          )
-                        }}
-                      </div>
-
-                      <!-- CEO / Founded / HQ (inline, hide if absent) -->
-                      <div class="d-flex flex-wrap ga-4 mt-2">
-                        <div v-if="verify.preview.ceoName || verify.preview.enrichment?.ceoName"
-                            class="text-body-2 d-inline-flex align-center">
-                          <v-icon size="16" class="me-1" icon="mdi-account-tie" />
-                          {{ verify.preview.ceoName || verify.preview.enrichment?.ceoName }}
-                        </div>
-
-                        <div v-if="verify.preview.foundingYear || verify.preview.enrichment?.foundingYear"
-                            class="text-body-2 d-inline-flex align-center">
-                          <v-icon size="16" class="me-1" icon="mdi-calendar-star" />
-                          Founded {{ verify.preview.foundingYear || verify.preview.enrichment?.foundingYear }}
-                        </div>
-
-                        <div v-if="verify.preview.headquartersAddress || verify.preview.enrichment?.headquartersAddress"
-                            class="text-body-2 d-inline-flex align-center text-truncate" style="max-width: 560px;">
-                          <v-icon size="16" class="me-1" icon="mdi-map-marker" />
-                          <span class="text-truncate">
-                            {{ verify.preview.headquartersAddress || verify.preview.enrichment?.headquartersAddress }}
-                          </span>
-                        </div>
-                      </div>
-
-                      <!-- categories (chips) -->
-                      <div class="d-flex flex-wrap ga-2 mt-2"
-                          v-if="(verify.preview.categories && verify.preview.categories.length)
-                              || (verify.preview.enrichment?.categories && verify.preview.enrichment.categories.length)">
-                        <v-chip
-                          v-for="cat in (verify.preview.categories || verify.preview.enrichment?.categories || [])"
-                          :key="cat"
-                          size="small" variant="tonal" density="comfortable"
-                        >
-                          {{ cat }}
-                        </v-chip>
-                      </div>
-
-                      <!-- CTAs -->
-                      <div class="mt-2 d-flex ga-3">
-                        <a :href="verify.preview.website || verify.preview.url" target="_blank" rel="noopener">Open site</a>
-                        <a v-if="verify.preview.url && verify.preview.website && verify.preview.website !== verify.preview.url"
-                          :href="verify.preview.url" target="_blank" rel="noopener">Original URL</a>
-                      </div>
-
-                      <!-- warning if OG failed -->
-                      <v-alert
-                        v-if="verify.preview.meta && verify.preview.meta.ok === false"
-                        type="warning" variant="tonal" class="mt-3"
-                      >
-                        Couldn’t read page metadata (status {{ verify.preview.meta.status || 'unknown' }}).
-                        We’ll still use the URL and favicon.
-                      </v-alert>
-                    </div>
+              <!-- No Data State -->
+              <v-alert
+                v-if="!verify.loadingPreview && !verify.preview?.name"
+                type="warning"
+                variant="tonal"
+                density="comfortable"
+                class="mt-4"
+              >
+                <template #prepend>
+                  <v-icon>mdi-alert-circle</v-icon>
+                </template>
+                <div class="text-body-2">
+                  <div class="font-weight-medium mb-1">No company data found</div>
+                  <div>
+                    We couldn't retrieve information for this 
+                    {{ verify.method === 'website' ? 'website' : verify.method === 'linkedin' ? 'LinkedIn profile' : 'address' }}.
+                    You can still proceed, but verification will be manual.
                   </div>
-                </template>
+                </div>
+              </v-alert>
 
-
-                <!-- ===== LINKEDIN ===== -->
-                <template v-else-if="verify.preview?.kind === 'linkedin'">
-                  <div class="d-flex align-start ga-3 mb-3">
-                    <v-img
-                      :src="verify.preview.image || verify.preview.meta?.image || verify.preview.favicon"
-                      width="48" height="48" class="rounded" cover
-                    />
-                    <div class="min-w-0">
-                      <!-- origin label -->
-                      <div class="text-caption text-medium-emphasis">linkedin.com</div>
-
-                      <!-- title / name (prefer normalized name over OG title) -->
-                      <div class="font-weight-medium text-truncate">
-                        {{ verify.preview.name || decodeHtml(verify.preview.meta?.title) || verify.preview.url }}
-                      </div>
-
-                      <!-- description (prefer normalized shortDescription, else OG) -->
-                      <div class="text-body-2 text-truncate-2 mt-1"
-                          v-if="verify.preview.shortDescription || verify.preview.meta?.description">
-                        {{
-                          decodeHtml(
-                            verify.preview.shortDescription
-                            || verify.preview.meta?.description
-                          )
-                        }}
-                      </div>
-
-                      <!-- CEO / Founded / HQ (inline; render only if present) -->
-                      <div class="d-flex flex-wrap ga-4 mt-2">
-                        <div v-if="verify.preview.ceoName || verify.preview.enrichment?.ceoName"
-                            class="text-body-2 d-inline-flex align-center">
-                          <v-icon size="16" class="me-1" icon="mdi-account-tie" />
-                          {{ verify.preview.ceoName || verify.preview.enrichment?.ceoName }}
-                        </div>
-
-                        <div v-if="verify.preview.foundingYear || verify.preview.enrichment?.foundingYear"
-                            class="text-body-2 d-inline-flex align-center">
-                          <v-icon size="16" class="me-1" icon="mdi-calendar-star" />
-                          Founded {{ verify.preview.foundingYear || verify.preview.enrichment?.foundingYear }}
-                        </div>
-
-                        <div v-if="verify.preview.headquartersAddress || verify.preview.enrichment?.headquartersAddress"
-                            class="text-body-2 d-inline-flex align-center text-truncate" style="max-width: 560px;">
-                          <v-icon size="16" class="me-1" icon="mdi-map-marker" />
-                          <span class="text-truncate">
-                            {{ verify.preview.headquartersAddress || verify.preview.enrichment?.headquartersAddress }}
-                          </span>
-                        </div>
-                      </div>
-
-                      <!-- categories (chips) -->
-                      <div class="d-flex flex-wrap ga-2 mt-2"
-                          v-if="(verify.preview.categories && verify.preview.categories.length)
-                              || (verify.preview.enrichment?.categories && verify.preview.enrichment.categories.length)">
-                        <v-chip
-                          v-for="cat in (verify.preview.categories || verify.preview.enrichment?.categories || [])"
-                          :key="cat"
-                          size="small" variant="tonal" density="comfortable"
-                        >
-                          {{ cat }}
-                        </v-chip>
-                      </div>
-
-                      <!-- CTAs: LinkedIn + Official site when available -->
-                      <div class="mt-2 d-flex ga-3">
-                        <a :href="verify.preview.url" target="_blank" rel="noopener">Open on LinkedIn</a>
-                        <a v-if="verify.preview.website"
-                          :href="verify.preview.website"
-                          target="_blank" rel="noopener">Official site</a>
-                      </div>
-
-                      <!-- login wall note -->
-                      <v-alert
-                        v-if="verify.preview.limited"
-                        type="info" variant="tonal" class="mt-3"
-                      >
-                        Limited preview (LinkedIn login wall). We’ll still save the URL.
-                      </v-alert>
-                    </div>
-                  </div>
-                </template>
-
-
-                <!-- ===== ADDRESS / GOOGLE PLACES ===== -->
-                <template v-else-if="verify.preview?.kind === 'address'">
-                  <div class="pa-3 rounded soft-surface">
-                    <!-- Header row: favicon/logo + name -->
-                    <div class="d-flex align-start ga-3 mb-2">
-                      <div class="min-w-0">
-                        <div class="font-weight-medium text-truncate">
-                          {{ verify.preview.name || verify.preview.place?.name || 'No match found' }}
-                        </div>
-                        <div class="text-caption text-medium-emphasis" v-if="verify.preview.website">
-                          <a v-if="verify.preview.url && verify.preview.website && verify.preview.website !== verify.preview.url"
-                          :href="verify.preview.url" target="_blank" rel="noopener">Original URL</a>
-                        </div>
-                      </div>
-                      <v-img
-                      :src="verify.preview.image || verify.preview.meta?.image || verify.preview.favicon"
-                      width="48" height="48" class="rounded"
-                    />
-                      
-                    </div>
-
-                    <!-- Address -->
-                    <div class="text-body-2" v-if="verify.preview.headquartersAddress || verify.preview.place?.address">
-                      {{ verify.preview.headquartersAddress || verify.preview.place?.address }}
-                    </div>
-
-                    <!-- Description -->
-                    <div class="text-body-2 text-truncate-2 mt-2"
-                        v-if="verify.preview.shortDescription || verify.preview.enrichment?.shortDescription">
-                      {{
-                        verify.preview.shortDescription
-                        || verify.preview.enrichment?.shortDescription
-                      }}
-                    </div>
-
-                    <!-- CEO / Founded / HQ (inline chips/lines) -->
-                    <div class="d-flex flex-wrap ga-4 mt-2">
-                      <div v-if="verify.preview.ceoName || verify.preview.enrichment?.ceoName"
-                          class="text-body-2 d-inline-flex align-center">
-                        <v-icon size="16" class="me-1" icon="mdi-account-tie" />
-                        {{ verify.preview.ceoName || verify.preview.enrichment?.ceoName }}
-                      </div>
-
-                      <div v-if="verify.preview.foundingYear || verify.preview.enrichment?.foundingYear"
-                          class="text-body-2 d-inline-flex align-center">
-                        <v-icon size="16" class="me-1" icon="mdi-calendar-star" />
-                        Founded {{ verify.preview.foundingYear || verify.preview.enrichment?.foundingYear }}
-                      </div>
-
-                      <div v-if="verify.preview.headquartersAddress || verify.preview.enrichment?.headquartersAddress"
-                          class="text-body-2 d-inline-flex align-center text-truncate" style="max-width: 560px;">
-                        <v-icon size="16" class="me-1" icon="mdi-map-marker" />
-                        <span class="text-truncate">
-                          {{ verify.preview.headquartersAddress || verify.preview.enrichment?.headquartersAddress }}
-                        </span>
-                      </div>
-                    </div>
-
-                    <!-- Categories -->
-                    <div class="d-flex flex-wrap ga-2 mt-2"
-                        v-if="(verify.preview.categories && verify.preview.categories.length)
-                            || (verify.preview.enrichment?.categories && verify.preview.enrichment.categories.length)">
-                      <v-chip
-                        v-for="cat in (verify.preview.categories || verify.preview.enrichment?.categories || [])"
-                        :key="cat"
-                        size="small" variant="tonal" density="comfortable"
-                      >
-                        {{ cat }}
-                      </v-chip>
-                    </div>
-
-                    <!-- Map -->
-                    <div class="mt-3" v-if="verify.preview.location || verify.preview.place?.location">
-                      <MapboxMap
-                        :lat="(verify.preview.location || verify.preview.place.location).lat"
-                        :lng="(verify.preview.location || verify.preview.place.location).lng"
-                        :zoom="14"
-                      />
-                    </div>
-
-                    <!-- CTAs -->
-                    <div class="mt-2 d-flex ga-4">
-                      <a v-if="verify.preview.place?.mapLink"
-                        :href="verify.preview.place.mapLink" target="_blank" rel="noopener">Open in Google Maps</a>
-                      <a v-if="verify.preview.website"
-                        :href="verify.preview.website" target="_blank" rel="noopener">Official site</a>
-                    </div>
-
-                    <!-- Fallback alert -->
-                    <v-alert v-if="!verify.preview.place?.mapLink" type="warning" variant="tonal" class="mt-3">
-                      We couldn’t resolve this address. Try a different format or include city/state.
-                    </v-alert>
-                  </div>
-                </template>
-
-
-                <!-- ===== NO METHOD OR UNKNOWN ===== -->
-                <template v-else>
-                  <v-alert type="warning" variant="tonal">
-                    No verification method selected or unrecognized preview format.
-                  </v-alert>
-                </template>
-              </div>
-
+              <!-- Editable Brand Name -->
+              <v-text-field
+                v-model="brandForm.name"
+                label="Brand Name"
+                hint="You can still edit this before creating"
+                persistent-hint
+                prepend-inner-icon="mdi-pencil"
+                class="mt-4"
+                variant="outlined"
+                density="comfortable"
+              />
             </v-card-text>
 
-            <v-card-actions class="justify-end">
-              <v-btn variant="text" @click="verify.dialogOpen = false">Back</v-btn>
-              <v-btn color="primary" :loading="loading" @click="finalizeCreate">
-                Confirm & Submit
+            <v-divider />
+
+            <!-- Actions -->
+            <v-card-actions class="pa-4">
+              <v-spacer />
+              <v-btn
+                variant="text"
+                @click="verify.dialogOpen = false"
+              >
+                Go Back
+              </v-btn>
+              <v-btn
+                color="primary"
+                :loading="loading"
+                variant="elevated"
+                @click="finalizeCreate"
+              >
+                <v-icon start>mdi-check-circle</v-icon>
+                Confirm & Create Brand
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -476,6 +266,7 @@
 import { inject, reactive, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import MapboxMap from '@/components/MapBoxMap.vue'
+import CompanyPreviewCard from './CompanyPreviewCard.vue'
 import { useUserStore } from '@/store/user'
 import {useCompanyStore} from '@/store/company';
 import { stringIsEmail } from '@/utils/string'
