@@ -1,14 +1,14 @@
+import { createPinia } from 'pinia';
+import { createApp } from 'vue';
 import 'vuetify/styles';
 import App from './App.vue';
-import {createApp} from 'vue';
 import './assets/scss/misc.scss';
 import axios from './plugins/axios';
-import {createPinia} from 'pinia';
-import router from './router';
 import vuetify from './plugins/vuetify';
-import {useUserStore} from './store/user';
-import {useCompanyStore} from './store/company';
-import {useOverlayStore} from './store/overlay';
+import router from './router';
+import { useCompanyStore } from './store/company';
+import { useOverlayStore } from './store/overlay';
+import { useUserStore } from './store/user';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -22,6 +22,7 @@ app.use(vuetify);
 pinia.use(({store}) => {
     store.$users = app.config.globalProperties.$usersApi;
     store.$businessVerification = app.config.globalProperties.$businessVerificationApi;
+    store.$companies = app.config.globalProperties.$companiesApi;
 });
 
 (async () => {

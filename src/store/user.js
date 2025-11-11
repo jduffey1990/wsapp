@@ -1,6 +1,6 @@
 // store/user.js
 import router from '@/router';
-import { defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -61,6 +61,7 @@ export const useUserStore = defineStore('user', {
       // Set authorization headers
       this.$users.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.$companies.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     },
 
     /**
@@ -73,6 +74,7 @@ export const useUserStore = defineStore('user', {
       localStorage.removeItem('user');
       delete this.$users.defaults.headers.common['Authorization'];
       delete this.$businessVerification.defaults.headers.common['Authorization'];
+      delete this.$companies.defaults.headers.common['Authorization'] 
     },
 
     setBusinessType(type) {
@@ -142,6 +144,7 @@ export const useUserStore = defineStore('user', {
         // Set headers for authenticated requests
         this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
         this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$companies.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
         
         return; // ✅ No API call needed!
       }
@@ -158,6 +161,7 @@ export const useUserStore = defineStore('user', {
         localStorage.setItem('user', JSON.stringify(user));
         
         this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$companies.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } catch (error) {
         console.error('Session validation failed:', error);
         this.clearAuth();
