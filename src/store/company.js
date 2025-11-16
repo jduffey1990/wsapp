@@ -64,15 +64,8 @@ export const useCompanyStore = defineStore('company', {
      * @returns {Promise<Object>} Validation result with company info if valid
      */
     async validateInvitationCode(code) {
-      try {
-        const response = await this.$companies.post('/invitation-codes/validate', {
-          code
-        })
-        return response.data
-      } catch (error) {
-        console.error('Error validating invitation code:', error)
-        throw error
-      }
+      const response = await this.$companies.post('/company-code/validate', { code })
+      return response.data
     }
   }
 });

@@ -10,6 +10,7 @@ import Payment from "@/components/Payment";
 import BrandMatch from "@/views/landing/BrandMatchStep";
 import RetailerMatch from "@/views/landing/RetailerMatchStep.vue";
 import TechShowcase from '@/components/TechShowcase.vue';
+import Activate from '@/views/landing/Activate.vue';
 
 const router = createRouter({
     history: createWebHashHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
@@ -37,6 +38,12 @@ const router = createRouter({
                 ? { youSingular: 'Brand', themPlural: 'Retailers', themSingular: 'Retailer', youPlural: 'Brands' }
                 : { youSingular: 'Retailer', themPlural: 'Brands', themSingular: 'Brand', youPlural: 'Retailers' }
             }
+        },
+        {
+            path: '/activate/:token',                
+            name: 'Activate',
+            component: Activate,
+            props: true  
         },
         {
             path: '/retailer',

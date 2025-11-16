@@ -3,7 +3,6 @@
     <v-card-text>
       <Transition name="fade-transition" mode="out-in">
         <BrandAccountCreate
-          @brand-linked="onBrandLinked"
           @cancel="$emit('cancel')"
           @created="onCreated"
           @joined="onJoined"
@@ -24,16 +23,6 @@ const userStore = useUserStore();
 const {isBrand} = storeToRefs(userStore);
 
 const emit = defineEmits(['created', 'cancel', 'joined'])
-const brand = ref(null)     // will hold { id, name }
-const retailAccount = ref(null)     // will hold { id, name }
-
-function onBrandLinked(payload) {
-  brand.value = payload
-}
-
-function onRetailLinked(payload) {
-  retailAccount.value = payload
-}
 
 function onCreated() {
   emit('created')

@@ -98,27 +98,9 @@ export const useUserStore = defineStore('user', {
     },
 
     async createUser(userData) {
-      try {
-        console.log('Creating user with data:', userData);
-        
-        const response = await this.$users.post('/create-user', userData);
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP ${response.status}`);
-        }
-
-        const user = response
-        console.log('User created successfully:', user);
-        
-        return user;
-      } catch (error) {
-        console.error('Create user error:', error);
-        throw error;
-      }
+      const response = await this.$users.post('/create-user', userData)
+      return response.data
     },
-
-
 
     /**
      * ✅ Smart session check - only calls API if needed
@@ -184,6 +166,15 @@ export const useUserStore = defineStore('user', {
         return response.data
       } catch (error) {
         console.error('Update user error:', error)
+        throw error
+      }
+    },
+    async sendActivateEmail(email) {
+      try {
+        const response = await this.$users.post(`/send-activation/${email}`)
+        return response.data
+      } catch (error) {
+        console.error('Error sending invitation email:', error)
         throw error
       }
     },

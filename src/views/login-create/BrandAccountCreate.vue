@@ -263,13 +263,12 @@
 </template>
 
 <script setup>
-import { inject, reactive, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import MapboxMap from '@/components/MapBoxMap.vue'
-import CompanyPreviewCard from './CompanyPreviewCard.vue'
+import { useCompanyStore } from '@/store/company'
 import { useUserStore } from '@/store/user'
-import {useCompanyStore} from '@/store/company';
 import { stringIsEmail } from '@/utils/string'
+import { storeToRefs } from 'pinia'
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import CompanyPreviewCard from './CompanyPreviewCard.vue'
 const companyStore = useCompanyStore();
 const showToast = inject('toast')?.show
 
@@ -281,7 +280,7 @@ let recaptchaReady = false
 
 
 //EMITS
-const emit = defineEmits(['brand-linked', 'cancel', "created", "joined"])
+const emit = defineEmits(['cancel', "created", "joined"])
 
 //TAB AND PAGE
 const loading = ref(false)
@@ -403,18 +402,6 @@ watch([passwordOne, passwordTwo], () => {
   accountForm.password = rules.match ? passwordOne.value : ''
 }, { immediate: true })
 
-watch(canJoin, (val) => {
-  console.log('canJoin:', val)
-  console.log('passcode:', passcode.value)
-  console.log('isValid:', isValid.value)
-  console.log('  - clientReady:', clientReady.value)
-  console.log('  - passwordReady:', passwordReady.value)
-  console.log('  - emailOK:', emailOK.value)
-  console.log('  - accountForm:', accountForm)
-  console.log('  - rules:', rules)
-  console.log('loading:', loading.value)
-}, { immediate: true })
-
 
 function normalizeWebsite (url) {
   if (!url) return ''
@@ -430,49 +417,53 @@ function decodeHtml(str = '') {
 
 
 async function joinBrandDuped() {
-  console.log("passcode", passcode.value)
   if (!passcode.value) return
   
   loading.value = true
   try {
-    // Get CAPTCHA token
+    // Step 1: Get CAPTCHA token
     const captchaToken = await getCaptchaToken('join_brand')
-    
-    // Set company data from passcode lookup (duped for now)
-    // TODO: Replace with actual API call that verifies passcode
-    const companyData = { 
-      id: "019a132b-8787-7fa4-876e-d8cf78a0be97",
-      name: 'Duffey\'s Dapper Duds' 
+    if (!captchaToken) {
+      showToast?.({ message: 'Security verification failed', error: true })
+      return
     }
     
-    // Set company in your Pinia store
-    companyStore.setCompanyData(companyData)
-    createdBrand.value = companyData
+    // Step 2: Validate invitation code
+    const companyId = await companyStore.validateInvitationCode(passcode.value)
+    if (!companyId) {
+      showToast?.({ message: 'Invalid or expired invitation code', error: true })
+      return
+    }
     
-    // Create user with real API
+    // Step 3: Create user account
     const userPayload = {
       ...accountForm,
       name: `${accountForm.firstName} ${accountForm.lastName}`,
-      companyId: companyData.id, // Associate with company
-      captchaToken // Send token to backend
+      companyId: companyId,
+      captchaToken
     }
     
-    await userStore.createUser(userPayload)
+    const user = await userStore.createUser(userPayload)
     
+    // Success
     showToast?.({ 
-      message: `Joined ${companyData.name}. Please verify your account in your email inbox.`, 
+      message: `Account created! Please verify your email to complete signup.`, 
       timeout: 6000 
     })
-    emit('brand-linked', companyData)
+
+    await userStore.sendActivateEmail(user.email)
     emit('joined')
+    
   } catch (e) {
-    console.error('joinBrandDuped error:', e)
-    const msg = e?.response?.data?.message ?? e?.message ?? 'Unexpected error'
+    console.error('PORKNBEANS', e.response.data.error)
+    const msg = e.response.data.error
     showToast?.({ message: msg, error: true })
   } finally {
     loading.value = false
   }
 }
+
+
 
 async function createBrandDuped () {
   if (!canCreate.value) {
@@ -507,7 +498,6 @@ async function createBrandDuped () {
     await userStore.createUser(userPayload)
 
     showToast?.({ message: `Brand ${brand.name} created. Account created. Please verify your account in your linked email inbox, and then log in.  Redirecting…`, timeout:6000 })
-    emit('brand-linked', { id: brand.id, name: brand.name })
     emit('created')
   } catch (e) {
     const msg = e?.response?.data?.message || 'Could not create brand or account.'
