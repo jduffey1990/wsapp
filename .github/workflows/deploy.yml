@@ -40,7 +40,7 @@ jobs:
           VITE_BRANDORA_VERIFY_API_URL: ${{ secrets.VITE_VERIFY_API_URL }}
           VITE_MAPBOX_TOKEN:   ${{ secrets.VITE_MAPBOX_TOKEN }}
           VITE_USERS_BASE_URL: ${{ secrets.VITE_USERS_BASE_URL }}
-          VITE_COMPANIES_BASE_URL: $${{ secrets.VITE_COMPANIES_BASE_URL }}
+          VITE_COMPANIES_BASE_URL: ${{ secrets.VITE_COMPANIES_BASE_URL }}
           VITE_RECAPTCHA_SITE_KEY: ${{ secrets.VITE_RECAPTCHA_SITE_KEY }}
         run: yarn build
 
