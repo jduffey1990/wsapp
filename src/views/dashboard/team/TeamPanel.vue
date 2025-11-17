@@ -149,7 +149,7 @@ const currentCode = ref('') // the code visible in dialog
 // Form state (defaults)
 const form = ref({
   email: '',
-  subject: 'Brandora Invitation Code',
+  subject: 'MOZAIQ Invitation Code',
   bodyTemplate: 'Here is your invitation code: {CODE} Sign up at https://brandora.com to get started!',
   image: '' // empty uses default brandlogo
 })

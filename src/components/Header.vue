@@ -7,7 +7,7 @@
             <v-img
                    :src="'https://brandora-jduffey.s3.us-east-2.amazonaws.com/brandora.png'"
                     :width="166"
-                    alt="Brandora"
+                    alt="Mozaiq"
                     eager
                     class="cursor-pointer image"
                     style="max-height: 120px;"

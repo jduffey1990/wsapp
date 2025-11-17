@@ -8,32 +8,89 @@
     />
     <UiPassword v-model="credentials.password" autocomplete="current-password" />
 
+    <!-- Inactive Account Alert -->
+    <v-alert 
+      v-if="showInactiveAlert" 
+      type="warning" 
+      variant="tonal"
+      class="mt-4"
+      prominent
+    >
+      <div class="d-flex flex-column align-center">
+        <v-icon size="large" class="mb-2">mdi-account-alert</v-icon>
+        <p class="text-body-1 mb-3">Your account needs to be activated before you can log in.</p>
+        <v-btn
+          color="warning"
+          variant="elevated"
+          @click="goToActivate"
+        >
+          Activate Account Now
+        </v-btn>
+      </div>
+    </v-alert>
+
     <div class="d-flex justify-end mt-4">
-      <v-btn type="submit" color="primary" :loading="loading">Login</v-btn>
+      <v-btn 
+        type="submit" 
+        color="primary" 
+        :loading="loading"
+        :disabled="showInactiveAlert"
+      >
+        Login
+      </v-btn>
     </div>
   </v-form>
 </template>
 
 <script setup>
-import { reactive, ref, inject } from 'vue'
+import { reactive, ref, inject, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import UiPassword from '@/components/ui/Password.vue'
 
 const emit = defineEmits(['success'])
 
-const { login, loginDuped } = useUserStore()
+const router = useRouter()
+const { login } = useUserStore()
 const showToast = inject('toast')?.show
 const $users = inject('$usersApi')
 
 const credentials = reactive({ email: '', password: '' })
 const loading = ref(false)
+const inactive = ref(false)
+const showInactiveAlert = ref(false)
 
-async function loginUser () {
+// Watch inactive state and update alert visibility
+watch(inactive, (newValue) => {
+  showInactiveAlert.value = newValue
+  console.log('Inactive status changed:', newValue)
+})
+
+async function loginUser() {
+  // Reset inactive state before attempting login
+  inactive.value = false
   loading.value = true
+  
   try {
-    await login(credentials);
+    await login(credentials)
     emit('success')
   } catch (error) {
+    console.log('Login error:', error)
+    console.log('Error response:', error.response)
+    console.log('Error data:', error.response?.data)
+    
+    // Check if it's an inactive user error
+    if (error.userInactive || error.response?.data?.error === 'USER_INACTIVE') {
+      console.log('USER_INACTIVE detected, setting inactive = true')
+      inactive.value = true
+      showToast?.({ 
+        message: error.message || error.response?.data?.message || 'Please verify your email to activate your account.', 
+        error: true 
+      })
+      return
+    }
+    
+    // Handle other errors
     const msg = error?.response?.data?.message || 'Login failed. Please try again.'
     showToast?.({ message: msg, error: true })
   } finally {
@@ -41,7 +98,11 @@ async function loginUser () {
   }
 }
 
-async function resetPassword () {
+function goToActivate() {
+  router.push({ name: 'Activate' })
+}
+
+async function resetPassword() {
   if (!credentials.email) {
     return showToast?.({ message: 'Please enter your email first.', error: true })
   }

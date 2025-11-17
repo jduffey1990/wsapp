@@ -1,5 +1,5 @@
 <template>
-  <div  ref = "pageEl" class="brandora page">
+  <div  ref = "pageEl" class="MOZAIQ page">
     <!-- HERO -->
     <section class="hero">
       <div class="hero-inner">
@@ -124,7 +124,7 @@ const router = useRouter()
 
 function seeVideo () {
   overlayStore.openOverlay({
-    title: 'How Brandora matches retailers with the right brands',
+    title: 'How MOZAIQ matches retailers with the right brands',
     text: '',
     mediaType: 'video',
     src: 'https://brandora-jduffey.s3.us-east-2.amazonaws.com/filler.mp4',

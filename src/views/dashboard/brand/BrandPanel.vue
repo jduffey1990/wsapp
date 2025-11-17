@@ -542,7 +542,7 @@ async function onWizardSave (draft) {
 
 <style scoped>
 :root {
-  /* Brandora palette (fallbacks) */
+  /* MOZAIQ palette (fallbacks) */
   --brand-primary: #5B9279;
   --brand-secondary: #12130F;
   --brand-info: #8FCB9B;

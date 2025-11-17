@@ -40,7 +40,7 @@ const router = createRouter({
             }
         },
         {
-            path: '/activate/:token',                
+            path: '/activate/:token?',                
             name: 'Activate',
             component: Activate,
             props: true  

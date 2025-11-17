@@ -268,7 +268,7 @@ const dialog = ref({
 
 const form = ref({
   email: '',
-  subject: 'Brandora Invitation Code',
+  subject: 'MOZAIQ Invitation Code',
   bodyTemplate: 'Here is your invitation code: {CODE}\n\nSign up at https://brandora.com to get started!',
   image: ''
 })

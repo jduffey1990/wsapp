@@ -1,7 +1,7 @@
 <template>
   <v-footer color="translucent">
     <div class="footer-text px-4">
-      {{ new Date().getFullYear() }} — <strong>Brandora</strong>
+      {{ new Date().getFullYear() }} — <strong>MOZAIQ</strong>
     </div>
   </v-footer>
 </template>

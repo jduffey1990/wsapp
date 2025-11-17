@@ -10,7 +10,7 @@
     <div class="centered">
       <Transition name="fade" mode="out-in">
         <div :key="currentPhrase" class="phrase glass">
-          <span class="prompt">~/brandora $</span>
+          <span class="prompt">~/mozaiq $</span>
           <span class="text">{{ currentPhrase }}</span>
         </div>
       </Transition>

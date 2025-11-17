@@ -15,11 +15,36 @@
           <br/>
 
           <UiPassword v-model="credentials.password"></UiPassword>
+          
+          <!-- Inactive Account Warning -->
+          <v-alert 
+            v-if="inactive" 
+            type="warning" 
+            variant="tonal"
+            class="mt-4"
+          >
+            <div class="d-flex flex-column align-center">
+              <p class="mb-2">Your account needs to be activated.</p>
+              <v-btn
+                color="warning"
+                variant="elevated"
+                @click="goToActivate"
+                size="small"
+              >
+                Activate Account
+              </v-btn>
+            </div>
+          </v-alert>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn type="submit">Login</v-btn>
+          <v-btn 
+            type="submit"
+            :disabled="showInactiveAlert"
+          >
+            Login
+          </v-btn>
         </v-card-actions>
       </v-form>
     </v-card>
@@ -121,17 +146,15 @@
 </template>
 
 <script setup>
-import {useUserStore} from '@/store/user';
-import {computed, reactive, ref, watch} from 'vue';
 import UiPassword from '@/components/ui/Password.vue';
-import {useRouter} from 'vue-router';
-import {inject} from 'vue';
-import {storeToRefs} from 'pinia';
-import {stringIsEmail} from '@/utils/string'
+import { useUserStore } from '@/store/user';
+import { stringIsEmail } from '@/utils/string';
+import { storeToRefs } from 'pinia';
+import { computed, inject, reactive, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const {show} = inject('toast');
 const $users = inject('$usersApi');
-const $brackets = inject('$bracketsApi');
 const {user, stripeAccountAssociated, cardOnFile} = storeToRefs(useUserStore());
 const {login} = useUserStore();
 
@@ -142,25 +165,60 @@ const credentials = reactive({
   password: undefined,
 });
 
+const inactive = ref(false)
+const showInactiveAlert = ref(false);
+
+// Watch inactive state and update alert visibility
+watch(inactive, (newValue) => {
+  showInactiveAlert.value = newValue;
+  console.log('Inactive status changed:', newValue);
+});
+
 
 const loginUser = async () => {
+  console.log('Component: Starting login');
+  inactive.value = false; // Reset
+  
   try {
     await login(credentials);
+    console.log('Component: Login successful');
   } catch (error) {
-    console.log(error)
-    if (error.response && error.response.data && error.response.data.message) {
+    console.log('Component: Caught error:', error);
+    console.log('Component: error.userInactive:', error.userInactive);
+    console.log('Component: error.message:', error.message);
+    console.log('Component: Full error object:', JSON.stringify(error, null, 2));
+    
+    // Check if it's an inactive user error
+    if (error.userInactive) {
+      console.log('Component: Setting inactive.value = true');
+      inactive.value = true;
+      console.log('Component: inactive.value is now:', inactive.value);
+      
+      show({
+        message: error.message || 'Please verify your email to activate your account.',
+        error: true,
+      });
+      return;
+    }
+    
+    // Handle other errors
+    if (error.response?.data?.message) {
       show({
         message: error.response.data.message,
         error: true,
       });
     } else {
-      // Generic fallback for unexpected errors
       show({
-        message: 'An unexpected error occurred. Please try again later.',
+        message: error.message || 'An unexpected error occurred. Please try again later.',
         error: true,
       });
     }
   }
+};
+
+
+const goToActivate = () => {
+  router.push({ name: 'Activate' });
 };
 
 

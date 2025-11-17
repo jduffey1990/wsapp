@@ -92,7 +92,24 @@ export const useUserStore = defineStore('user', {
         this.setAuthData(token, user);
         return user;
       } catch (error) {
-        console.error('Login error:', error);
+        console.log('Store: Caught error:', error);
+        console.log('Store: Error response data:', error.response?.data);
+        console.log('Store: Error code:', error.response?.data?.error);
+        
+        if (error.response?.data?.error === 'USER_INACTIVE') {
+          console.log('Store: USER_INACTIVE detected, creating custom error');
+          
+          // Re-throw with a custom property so component can detect it
+          const inactiveError = new Error(error.response.data.message);
+          inactiveError.userInactive = true;
+          inactiveError.originalError = error;
+          
+          console.log('Store: Throwing inactiveError:', inactiveError);
+          console.log('Store: inactiveError.userInactive:', inactiveError.userInactive);
+          
+          throw inactiveError;
+        }
+        // Re-throw other errors
         throw error;
       }
     },

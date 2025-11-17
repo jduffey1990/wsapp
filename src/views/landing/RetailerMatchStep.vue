@@ -1,5 +1,5 @@
 <template>
-  <div  ref = "pageEl" class="brandora page">
+  <div  ref = "pageEl" class="MOZAIQ page">
     <!-- HERO -->
     <section class="hero">
       <div class="hero-inner">

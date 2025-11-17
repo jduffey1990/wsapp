@@ -1,5 +1,5 @@
 <template>
-  <v-layout class="justify-center align-center pa-4" style="min-height: 100vh;">
+  <v-layout class="justify-center align-start pa-4" style="min-height: 100vh;">
     <v-card width="500px" class="activation-card">
       <v-toolbar class="title-holder" :color="activationState.color">
         <v-toolbar-title class="title">{{ activationState.title }}</v-toolbar-title>
@@ -73,8 +73,9 @@
           <div class="error-details pa-4 mb-4">
             <p class="text-body-2 text-grey mb-2">This could be because:</p>
             <ul class="text-left text-body-2 text-grey">
-              <li>The activation link has expired (links are valid for 72 hours)</li>
+              <li>The activation link has expired (links are valid for 24 hours)</li>
               <li>The activation link has already been used</li>
+              <li>You clicked an older link in an email thread with multiple invitations</li>
               <li>The activation link is invalid or corrupted</li>
             </ul>
           </div>
