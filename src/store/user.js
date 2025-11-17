@@ -59,9 +59,9 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('user', JSON.stringify(user));
       
       // Set authorization headers
-      this.$users.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      this.$companies.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.$usersApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.$businessVerificationApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.$companiesApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     },
 
     /**
@@ -72,9 +72,9 @@ export const useUserStore = defineStore('user', {
       this.token = null;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      delete this.$users.defaults.headers.common['Authorization'];
-      delete this.$businessVerification.defaults.headers.common['Authorization'];
-      delete this.$companies.defaults.headers.common['Authorization'] 
+      delete this.$usersApi.defaults.headers.common['Authorization'];
+      delete this.$businessVerificationApi.defaults.headers.common['Authorization'];
+      delete this.$companiesApi.defaults.headers.common['Authorization'];
     },
 
     setBusinessType(type) {
@@ -86,7 +86,7 @@ export const useUserStore = defineStore('user', {
 
     async login(credentials) {
       try {
-        const response = await this.$users.post('/login', credentials);
+        const response = await this.$usersApi.post('/login', credentials);
         const { token, user } = response.data;
         
         this.setAuthData(token, user);
@@ -115,8 +115,8 @@ export const useUserStore = defineStore('user', {
     },
 
     async createUser(userData) {
-      const response = await this.$users.post('/create-user', userData)
-      return response.data
+      const response = await this.$usersApi.post('/create-user', userData);
+      return response.data;
     },
 
     /**
@@ -141,26 +141,26 @@ export const useUserStore = defineStore('user', {
         console.log('✅ Using cached user data, token still valid');
         
         // Set headers for authenticated requests
-        this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-        this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-        this.$companies.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$usersApi.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$businessVerificationApi.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$companiesApi.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
         
         return; // ✅ No API call needed!
       }
 
       // Token valid but no user data cached - fetch from server
       try {
-        this.$users.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$usersApi.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
         
-        const response = await this.$users.get('/session');
+        const response = await this.$usersApi.get('/session');
         const { user } = response.data;
         
         // Update cache
         this.user = user;
         localStorage.setItem('user', JSON.stringify(user));
         
-        this.$businessVerification.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-        this.$companies.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        this.$businessVerificationApi.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        this.$companiesApi.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
       } catch (error) {
         console.error('Session validation failed:', error);
         this.clearAuth();
@@ -171,33 +171,35 @@ export const useUserStore = defineStore('user', {
       console.log('Updating user with:', updates);
       try {  
         // Call the backend endpoint
-        const response = await this.$users.patch('/edit-user', updates)
+        const response = await this.$usersApi.patch('/edit-user', updates);
         
         // Update the local user state with the returned data
         if (response.data) {
-          this.user = response.data
+          this.user = response.data;
         }
 
         console.log('User updated successfully:', response.data);
         
-        return response.data
+        return response.data;
       } catch (error) {
-        console.error('Update user error:', error)
-        throw error
+        console.error('Update user error:', error);
+        throw error;
       }
     },
+    
     async sendActivateEmail(email) {
       try {
-        const response = await this.$users.post(`/send-activation/${email}`)
-        return response.data
+        const response = await this.$usersApi.post(`/send-activation/${email}`);
+        return response.data;
       } catch (error) {
-        console.error('Error sending invitation email:', error)
-        throw error
+        console.error('Error sending invitation email:', error);
+        throw error;
       }
     },
+    
     async logout() {
       try {
-        await this.$users.post('/logout');
+        await this.$usersApi.post('/logout');
       } catch (error) {
         console.error('Logout error:', error);
       }
