@@ -20,9 +20,9 @@ app.use(axios);
 app.use(vuetify);
 
 pinia.use(({store}) => {
-    store.$users = app.config.globalProperties.$usersApi;
-    store.$businessVerification = app.config.globalProperties.$businessVerificationApi;
-    store.$companies = app.config.globalProperties.$companiesApi;
+    store.$usersApi = app.config.globalProperties.$usersApi;
+    store.$businessVerificationApi = app.config.globalProperties.$businessVerificationApi;
+    store.$companiesApi = app.config.globalProperties.$companiesApi;
 });
 
 (async () => {
@@ -36,5 +36,3 @@ pinia.use(({store}) => {
     // Apply router and mount app
     app.use(router).mount('#app');
 })();
-
-//comment for change
