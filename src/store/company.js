@@ -20,7 +20,7 @@ export const useCompanyStore = defineStore('company', {
      */
     async getInvitationCodes(companyId) {
       try {
-        const response = await this.$companies.get(`/company-code?companyId=${companyId}`)
+        const response = await this.$companiesApi.get(`/company-code?companyId=${companyId}`)
         return response.data
       } catch (error) {
         console.error('Error fetching invitation codes:', error)
@@ -35,7 +35,7 @@ export const useCompanyStore = defineStore('company', {
      */
     async deleteThisCode(code) {
       try {
-        const response = await this.$companies.delete(`/delete-code/${code}`)
+        const response = await this.$companiesApi.delete(`/delete-code/${code}`)
         return response.data
       } catch (error) {
         console.error('Error creating invitation code:', error)
@@ -50,7 +50,7 @@ export const useCompanyStore = defineStore('company', {
      */
     async sendInvitationEmail(packet) {
       try {
-        const response = await this.$companies.post('/send-invitation', packet) // ← Fixed path
+        const response = await this.$companiesApi.post('/send-invitation', packet) // ← Fixed path
         return response.data
       } catch (error) {
         console.error('Error sending invitation email:', error)
@@ -64,7 +64,7 @@ export const useCompanyStore = defineStore('company', {
      * @returns {Promise<Object>} Validation result with company info if valid
      */
     async validateInvitationCode(code) {
-      const response = await this.$companies.post('/company-code/validate', { code })
+      const response = await this.$companiesApi.post('/company-code/validate', { code })
       return response.data
     }
   }
