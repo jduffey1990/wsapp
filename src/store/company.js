@@ -14,6 +14,15 @@ export const useCompanyStore = defineStore('company', {
   
   actions: {
     /**
+     * Creation of a company through userfacing app
+     * @param {object} companyId - The company ID
+     * @returns {Promise<Object>} Company object
+     */
+    async createCompany(companyData) {
+      const response = await this.$companiesApi.post('/create-company-with-user', companyData);
+      return response.data;
+    },
+    /**
      * Fetch active inv invitation code for the company
      * @param {string} companyId - The company ID
      * @returns {Promise<Array>} Array of invitation code objects

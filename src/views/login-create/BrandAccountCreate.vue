@@ -291,6 +291,7 @@ const verify = ref({
     { title: 'Business website URL', value: 'website' },
     { title: 'Headquarters address', value: 'address' },
     { title: 'Linkedin URL', value: 'linkedin' },
+    { title: 'None', value: null}
   ],
   payload: {
     website: '',
@@ -372,9 +373,6 @@ const isValid = computed(() => clientReady.value && passwordReady.value && email
 
 const accountValid = ref(false)
 const accountRef = ref(null)
-
-// you can store the result of brand creation here if needed
-const createdBrand = ref(null)
 
 // Parent-level gating for the “Create Brand”  or "Join Brand" submit
 
@@ -458,6 +456,7 @@ async function joinBrandDuped() {
     console.error('PORKNBEANS', e.response.data.error)
     const msg = e.response.data.error
     showToast?.({ message: msg, error: true })
+    verify.dialogOpen = false
   } finally {
     loading.value = false
   }
@@ -467,7 +466,7 @@ async function joinBrandDuped() {
 
 async function createBrandDuped () {
   if (!canCreate.value) {
-    // optional: hard check via the child’s exposed validate()
+    // optional: hard check via the child's exposed validate()
     const ok = accountRef.value?.validate?.()
     if (!ok) {
       showToast?.({ message: 'Fix account fields before continuing.', error: true })
@@ -477,35 +476,43 @@ async function createBrandDuped () {
 
   loading.value = true
   try {
-    // 1) Create the brand
-    const brandPayload = {
-      name: brandForm.name,
-      website: normalizeWebsite(brandForm.website),
-    }
-    const brand = { id: 75848949, name: 'Duffey\'s Dapper Duds' } // fake
-    createdBrand.value = brand
-    companyStore.setCompanyData(brand)
-
-    // 2) Create the user (use the data coming from child via v-model)
-    const userPayload = {
-      ...accountForm,
-      name: `${accountForm.firstName} ${accountForm.lastName}`,
-      brandId: brand.id,
-      captchaToken // Send token to backend
+    // Step 1: Get CAPTCHA token
+    const captchaToken = await getCaptchaToken('join_brand')
+    if (!captchaToken) {
+      showToast?.({ message: 'Security verification failed', error: true })
+      return
     }
 
-    // real request
-    await userStore.createUser(userPayload)
+    // Step 2: Create company and user in single atomic operation
+    const payload = {
+      company: {
+        name: brandForm.name,
+        status: 'active',
+        profile: verify.value.preview
+      },
+      user: {
+        ...accountForm,
+        name: `${accountForm.firstName} ${accountForm.lastName}`,
+        captchaToken // Send token to backend for user creation
+      }
+    }
 
-    showToast?.({ message: `Brand ${brand.name} created. Account created. Please verify your account in your linked email inbox, and then log in.  Redirecting…`, timeout:6000 })
+    const { company, user } = await companyStore.createCompany(payload)
+
+    showToast?.({ 
+      message: `Brand ${company.name} created. Account created. Please verify your account in your linked email inbox, and then log in. Redirecting…`, 
+      timeout: 6000 
+    })
     emit('created')
+
   } catch (e) {
-    const msg = e?.response?.data?.message || 'Could not create brand or account.'
+    const msg = e?.response?.data?.error || e?.response?.data?.message || 'Could not create brand or account.'
     showToast?.({ message: msg, error: true })
   } finally {
     loading.value = false
   }
 }
+
 
 /* Small helpers for previews */
 const websiteHost = computed(() => {
