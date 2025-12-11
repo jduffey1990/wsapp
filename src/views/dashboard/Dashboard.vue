@@ -39,10 +39,10 @@
       </v-tabs-window-item>
        <!-- Conversations Tab -->
       <v-tabs-window-item class="window-item">
-          <Conversations />
+          <ConversationsPanel />
       </v-tabs-window-item>
        <v-tabs-window-item class="window-item">
-          <Recommendations />
+          <RecommendationsPanel />
       </v-tabs-window-item>
 
     </v-tabs-window>
@@ -51,9 +51,10 @@
 
 <script setup>
 /* Imports */
-import MatchesPanel from './matches/Matches.vue'
+import ConversationsPanel from './conversations/conversationsPanel.vue'
 import BrandPanel from './brand/BrandPanel.vue'
 import TeamPanel from './team/TeamPanel.vue'
+import RecommendationsPanel from './recommendations/RecommendationsPanel.vue'
 import { ref, onMounted, watch, inject } from 'vue'
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
