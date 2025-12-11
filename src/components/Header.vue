@@ -5,7 +5,7 @@
         <v-app-bar-title>
           <router-link to="/" custom v-slot="{ navigate }" class="">
             <v-img
-                   :src="'https://brandora-jduffey.s3.us-east-2.amazonaws.com/brandora.png'"
+                   :src="'https://brandora-jduffey.s3.us-east-2.amazonaws.com/mozaiq.png'"
                     :width="166"
                     alt="Mozaiq"
                     eager

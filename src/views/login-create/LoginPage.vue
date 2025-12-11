@@ -40,15 +40,15 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
-import {storeToRefs} from 'pinia';
-import {useUserStore} from '@/store/user';
-import { useRouter } from 'vue-router'
+import { useUserStore } from '@/store/user';
+import { storeToRefs } from 'pinia';
+import { inject, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 const { show } = inject('toast')
 const {user} = storeToRefs(useUserStore());
 
-import LoginForm from './LoginForm.vue'
-import CreateAccountForm from './CreateAccountForm.vue'
+import CreateAccountForm from './CreateAccountForm.vue';
+import LoginForm from './LoginForm.vue';
 
 const showCreate = ref(false)
 const router = useRouter()
@@ -73,4 +73,18 @@ function onCreated () {
   showCreate.value = false
   router.push('/techShowcase')
 }
+
+onMounted(() => {
+  const userStore = useUserStore();
+  
+  console.log('User Status:', {
+    isLoggedIn: userStore.isLoggedIn,
+    user: userStore.user,
+    businessType: userStore.businessType,
+    isBrand: userStore.isBrand,
+    isRetail: userStore.isRetail,
+    token: userStore.token,
+    company: userStore.company
+  });
+});
 </script>

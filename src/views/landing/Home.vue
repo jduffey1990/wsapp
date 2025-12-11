@@ -9,20 +9,20 @@
       style="--bg-url: url('https://brandora-jduffey.s3.us-east-2.amazonaws.com/brand.png')"
     ></div>
 
-    <div
+    <!-- <div
       class="bg-half right"
       :class="{ 'is-active': hovered === 'retail' }"
       @mouseenter="hovered = 'retail'"
       @mouseleave="hovered = null"
       style="--bg-url: url('https://brandora-jduffey.s3.us-east-2.amazonaws.com/retail.png')"
-    ></div>
+    ></div> -->
 
     <!-- Foreground content -->
     <v-container class="py-10 home-wrap" fluid>
       <!-- Heading -->
       <div class="text-center mb-8">
         <v-img
-          src="https://brandora-jduffey.s3.us-east-2.amazonaws.com/brandora.png"
+          src="https://brandora-jduffey.s3.us-east-2.amazonaws.com/mozaiq.png"
           alt=""
           class="logo"
         />
@@ -38,7 +38,7 @@
           <v-btn
             color="brand-primary"
             variant="flat"
-            :to="{ name: 'Match', params: { aud: 'brand' } }"
+            :to="{ name: 'Login'}"
             @click="labelUser('brand')"
             class="cta"
           >
@@ -46,7 +46,7 @@
           </v-btn>
         </v-col>
 
-        <v-col
+        <!-- <v-col
           class="button ml-2"
           @mouseenter="hovered = 'retail'"
           @mouseleave="hovered = null"
@@ -60,16 +60,16 @@
           >
             Continue as Retailer
           </v-btn>
-        </v-col>
+        </v-col> -->
       </v-row>
     </v-container>
   </div>
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
+import { inject, ref } from 'vue'
 
 const { show } = inject('toast') ?? { show: undefined }
 const userStore = useUserStore()
@@ -95,7 +95,7 @@ const labelUser = (userType) => {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 50%;
+  width: 100%;
   background-image:
     linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
     var(--bg-url);

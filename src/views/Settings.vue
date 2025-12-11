@@ -192,7 +192,7 @@
 </template>
 
 <script setup>
-import brandlogo from '@/assets/brandora.png'
+import brandlogo from '@/assets/mozaiq.png'
 import { useCompanyStore } from '@/store/company'
 import { useUserStore } from '@/store/user'
 import { parseError } from '@/utils/error'
@@ -269,7 +269,7 @@ const dialog = ref({
 const form = ref({
   email: '',
   subject: 'MOZAIQ Invitation Code',
-  bodyTemplate: 'Here is your invitation code: {CODE}\n\nSign up at https://brandora.com to get started!',
+  bodyTemplate: 'Here is your invitation code: {CODE}\n\nSign up at https://mozaiqretail.com to get started!',
   image: ''
 })
 
