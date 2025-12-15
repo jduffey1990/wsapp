@@ -51,7 +51,7 @@
 
 <script setup>
 /* Imports */
-import ConversationsPanel from './conversations/conversationsPanel.vue'
+import ConversationsPanel from './conversations/ConversationsPanel.vue'
 import BrandPanel from './brand/BrandPanel.vue'
 import TeamPanel from './team/TeamPanel.vue'
 import RecommendationsPanel from './recommendations/RecommendationsPanel.vue'
