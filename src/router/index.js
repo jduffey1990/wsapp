@@ -1,19 +1,19 @@
-import {createRouter, createWebHistory, createWebHashHistory} from 'vue-router';
-import Login from '@/views/login-create/LoginPage.vue';
+import Payment from "@/components/Payment";
+import Success from "@/components/Success.vue";
+import TechShowcase from '@/components/TechShowcase.vue';
+import { useUserStore } from '@/store/user';
+import Settings from '@/views/Settings.vue';
 import Dashboard from '@/views/dashboard/Dashboard.vue';
 import Product from '@/views/dashboard/brand/Product.vue';
-import Home from '@/views/landing/Home.vue';
-import {useUserStore} from '@/store/user';
-import Settings from '@/views/Settings.vue';
-import Success from "@/components/Success.vue";
-import Payment from "@/components/Payment";
-import BrandMatch from "@/views/landing/BrandMatchStep";
-import RetailerMatch from "@/views/landing/RetailerMatchStep.vue";
-import TechShowcase from '@/components/TechShowcase.vue';
 import Activate from '@/views/landing/Activate.vue';
+import BrandMatch from "@/views/landing/BrandMatchStep";
+import Home from '@/views/landing/Home.vue';
+import RetailerMatch from "@/views/landing/RetailerMatchStep.vue";
+import Login from '@/views/login-create/LoginPage.vue';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
-    history: createWebHashHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
+    history: createWebHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
     routes: [
         {
             path: '/',
