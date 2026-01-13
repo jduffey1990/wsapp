@@ -117,7 +117,6 @@ function normalizeWebsite (url) {
 }
 
 async function joinAccountdDuped () {
-  console.log("passscode", passcode.value)
   if (!passcode.value) return
   loading.value = true
   try {

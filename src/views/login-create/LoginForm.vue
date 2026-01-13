@@ -8,25 +8,35 @@
     />
     <UiPassword v-model="credentials.password" autocomplete="current-password" />
 
-    <!-- Inactive Account Alert -->
-    <v-alert 
-      v-if="showInactiveAlert" 
-      type="warning" 
+    <v-alert
+      v-if="showInactiveAlert"
+      type="warning"
       variant="tonal"
       class="mt-4"
-      prominent
+      icon="mdi-email-alert-outline"
     >
-      <div class="d-flex flex-column align-center">
-        <v-icon size="large" class="mb-2">mdi-account-alert</v-icon>
-        <p class="text-body-1 mb-3">Your account needs to be activated before you can log in.</p>
-        <v-btn
-          color="warning"
-          variant="elevated"
-          @click="goToActivate"
-        >
-          Activate Account Now
-        </v-btn>
+      <div class="font-weight-medium mb-1">
+        Your account isn’t activated yet
       </div>
+
+      <div class="text-body-2 mb-3">
+        We’ve already sent you an activation email.
+        Please check your inbox and spam folder.
+      </div>
+
+      <div class="text-body-2 mb-3">
+        Didn’t get it? You can resend the activation email below.
+      </div>
+
+      <v-btn
+        color="primary"
+        variant="outlined"
+        size="small"
+        @click="goToActivate"
+        :disabled="!showInactiveAlert"
+      >
+        Resend activation email
+      </v-btn>
     </v-alert>
 
     <div class="d-flex justify-end mt-4">
@@ -40,13 +50,14 @@
       </v-btn>
     </div>
   </v-form>
+  
 </template>
 
 <script setup>
-import { reactive, ref, inject, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/store/user'
 import UiPassword from '@/components/ui/Password.vue'
+import { useUserStore } from '@/store/user'
+import { computed, inject, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const emit = defineEmits(['success'])
 
@@ -60,10 +71,14 @@ const loading = ref(false)
 const inactive = ref(false)
 const showInactiveAlert = ref(false)
 
+// Email validation
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailValid = computed(() => emailRegex.test(credentials.email));
+
 // Watch inactive state and update alert visibility
 watch(inactive, (newValue) => {
   showInactiveAlert.value = newValue
-  console.log('Inactive status changed:', newValue)
 })
 
 async function loginUser() {
@@ -72,16 +87,19 @@ async function loginUser() {
   loading.value = true
   
   try {
+    if(!emailValid){
+      showToast?.({ 
+        message: 'Please enter a valid email', 
+        error: true 
+      })
+      return
+    }
+
     await login(credentials)
     emit('success')
   } catch (error) {
-    console.log('Login error:', error)
-    console.log('Error response:', error.response)
-    console.log('Error data:', error.response?.data)
-    
     // Check if it's an inactive user error
     if (error.userInactive || error.response?.data?.error === 'USER_INACTIVE') {
-      console.log('USER_INACTIVE detected, setting inactive = true')
       inactive.value = true
       showToast?.({ 
         message: error.message || error.response?.data?.message || 'Please verify your email to activate your account.', 
@@ -99,7 +117,20 @@ async function loginUser() {
 }
 
 function goToActivate() {
-  router.push({ name: 'Activate' })
+  if (!emailValid.value) {
+    showToast?.({
+      message: 'Please enter a valid email',
+      error: true,
+    })
+    return
+  }
+
+  router.push({
+    name: 'Activate',
+    query: {
+      email: credentials.email.toLowerCase(),
+    },
+  })
 }
 
 async function resetPassword() {

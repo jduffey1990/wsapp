@@ -237,7 +237,6 @@ const cancelEdit = () => {
 }
 const hasUnsavedChanges = () => JSON.stringify(account.value) !== JSON.stringify(accountCopy.value)
 const saveProfile = async () => {
-  console.log('Saving profile...')
   try {
     accountCopy.value = { ...account.value }
     await userStore.updateUser(account.value)

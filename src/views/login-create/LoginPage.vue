@@ -73,18 +73,4 @@ function onCreated () {
   showCreate.value = false
   router.push('/techShowcase')
 }
-
-onMounted(() => {
-  const userStore = useUserStore();
-  
-  console.log('User Status:', {
-    isLoggedIn: userStore.isLoggedIn,
-    user: userStore.user,
-    businessType: userStore.businessType,
-    isBrand: userStore.isBrand,
-    isRetail: userStore.isRetail,
-    token: userStore.token,
-    company: userStore.company
-  });
-});
 </script>

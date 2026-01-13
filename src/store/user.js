@@ -6,7 +6,6 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
-    company: JSON.parse(localStorage.getItem('company')) || null,
   }),
   
   getters: {
@@ -168,7 +167,6 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateUser(updates) {
-      console.log('Updating user with:', updates);
       try {  
         // Call the backend endpoint
         const response = await this.$usersApi.patch('/edit-user', updates);
@@ -176,10 +174,9 @@ export const useUserStore = defineStore('user', {
         // Update the local user state with the returned data
         if (response.data) {
           this.user = response.data;
+          localStorage.setItem('user', JSON.stringify(response.data));
         }
-
-        console.log('User updated successfully:', response.data);
-        
+      
         return response.data;
       } catch (error) {
         console.error('Update user error:', error);
@@ -204,7 +201,14 @@ export const useUserStore = defineStore('user', {
         console.error('Logout error:', error);
       }
       
+      // Clear user auth
       this.clearAuth();
+      
+      // Clear company cache
+      const { useCompanyStore } = await import('./company');
+      const companyStore = useCompanyStore();
+      companyStore.clearCompanyCache();
+      
       router.push('/login');
     },
   },

@@ -45,7 +45,6 @@ const emit = defineEmits(['close'])
 
 const srcComputed = computed(() => {
   // prefer new `src`, fallback to legacy `backgroundImage`
-  console.log('Computed src:', props.src || props.backgroundImage || '')
   return props.src || props.backgroundImage || ''
 })
 

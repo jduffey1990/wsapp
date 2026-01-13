@@ -14,8 +14,7 @@
             size="64"
             class="mb-4"
           ></v-progress-circular>
-          <p class="text-h6">Activating your account...</p>
-          <p class="text-body-2 text-grey">Please wait while we verify your activation token.</p>
+          <p class="text-h6">One moment please...</p>
         </div>
 
         <!-- Success State -->
@@ -39,20 +38,37 @@
         <div v-else-if="isNoToken" class="text-center">
           <v-icon color="warning" size="80" class="mb-4">mdi-email-outline</v-icon>
           <p class="text-h5 mb-2">Activate Your Account</p>
-          <p class="text-body-1 mb-4">To activate your account, please check your email for the activation link.</p>
+          <p class="text-body-1 mb-4">To activate your account, please verify/enter your email below</p>
           
-          <div class="info-box pa-4 mb-4">
-            <p class="text-body-2 mb-2"><strong>Didn't receive an email?</strong></p>
-            <p class="text-body-2 text-grey">Check your spam folder or request a new activation link below.</p>
-          </div>
+          <v-card-text class="pa-6">
+            <v-text-field
+              v-model="resendEmail"
+              label="Email Address"
+              type="email"
+              variant="outlined"
+              :error-messages="resendEmailError"
+              @keyup.enter="sendNewActivation"
+            ></v-text-field>
+          </v-card-text>
+
+          <p
+            v-if="emailFromQuery"
+            class="text-caption text-grey mt-2"
+          >
+            This email was pre-filled from your login attempt.
+          </p>
+
 
           <div class="button-section">
             <v-btn
               color="primary"
-              @click="showResendDialog = true"
+              variant="outlined"
+              @click="sendNewActivation"
               class="mb-2"
+              :disabled="!canResend"
+              :loading="resendLoading"
             >
-              Send Activation Email
+              Request New Activation Link
             </v-btn>
             <v-btn
               color="grey"
@@ -81,16 +97,7 @@
           </div>
 
           <div class="button-section">
-            <v-btn
-              color="primary"
-              variant="outlined"
-              @click="requestNewActivation"
-              class="mb-2"
-              :disabled="resendLoading"
-              :loading="resendLoading"
-            >
-              Request New Activation Link
-            </v-btn>
+            
             <v-btn
               color="grey"
               variant="text"
@@ -102,47 +109,6 @@
         </div>
       </v-card-text>
     </v-card>
-
-    <!-- Resend Dialog -->
-    <v-dialog v-model="showResendDialog" max-width="400px">
-      <v-card>
-        <v-toolbar color="primary">
-          <v-toolbar-title>Send Activation Email</v-toolbar-title>
-        </v-toolbar>
-        
-        <v-card-text class="pa-6">
-          <p class="text-body-1 mb-4">Enter your email address to receive an activation link.</p>
-          
-          <v-text-field
-            v-model="resendEmail"
-            label="Email Address"
-            type="email"
-            variant="outlined"
-            :error-messages="resendEmailError"
-            @keyup.enter="sendNewActivation"
-          ></v-text-field>
-        </v-card-text>
-
-        <v-card-actions class="pa-4">
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="text"
-            @click="closeResendDialog"
-            :disabled="resendLoading"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="sendNewActivation"
-            :disabled="!resendEmail || resendLoading"
-            :loading="resendLoading"
-          >
-            Send Link
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-layout>
 </template>
 
@@ -160,19 +126,28 @@ const props = defineProps({
     token: String
 });
 
+const emailFromQuery = computed(() => {
+  const email = route.query.email
+  return typeof email === 'string' && stringIsEmail(email)
+    ? email.toLowerCase()
+    : ''
+})
+
+
 // State management
 const isLoading = ref(false);
 const isSuccess = ref(false);
 const isError = ref(false);
 const isNoToken = ref(false);
 const errorMessage = ref('');
-const activatedEmail = ref('');
 
 // Resend dialog
-const showResendDialog = ref(false);
-const resendEmail = ref('');
+const resendEmail = ref(''); // if email in params, set equal.  Else ''
 const resendEmailError = ref('');
 const resendLoading = ref(false);
+const canResend = computed(() => {
+  return stringIsEmail(resendEmail.value) && !resendLoading.value
+})
 
 // Get token from route params
 const token = computed(() => {
@@ -194,6 +169,11 @@ const activationState = computed(() => {
 
 // Activate account on mount
 onMounted(async () => {
+  // If email was passed from login, prefill it
+  if (emailFromQuery.value) {
+    resendEmail.value = emailFromQuery.value
+  }
+
   // Check if there's a token
   if (!token.value || token.value === 'undefined') {
     // No token provided - show the "send activation email" state
@@ -206,19 +186,12 @@ onMounted(async () => {
 });
 
 const activateAccount = async () => {
-  if (!token.value) {
-    isNoToken.value = true;
-    return;
-  }
-
   try {
     isLoading.value = true;
     const response = await $users.post(`/activate/${token.value}`);
     
     if (response.data.success) {
       isSuccess.value = true;
-      activatedEmail.value = response.data.email || '';
-      
       show({
         message: 'Your account has been successfully activated!',
       });
@@ -246,17 +219,6 @@ const goToLogin = () => {
   router.push({ name: 'Login' });
 };
 
-const requestNewActivation = () => {
-  showResendDialog.value = true;
-  resendEmail.value = activatedEmail.value || '';
-};
-
-const closeResendDialog = () => {
-  showResendDialog.value = false;
-  resendEmail.value = '';
-  resendEmailError.value = '';
-};
-
 const sendNewActivation = async () => {
   // Validate email
   resendEmailError.value = '';
@@ -280,8 +242,6 @@ const sendNewActivation = async () => {
       show({
         message: 'A new activation link has been sent to your email.',
       });
-      
-      closeResendDialog();
       
       // Show success message and option to go to login
       isNoToken.value = false;

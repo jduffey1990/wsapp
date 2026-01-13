@@ -6,7 +6,7 @@
       <div>
         <!-- User dashboard title displaying either full name or email -->
         <div class="text-h4 mb-2 dashboard-title">
-          A Super Cool Person's Dashboard
+          {{ user.name }}
         </div>
       </div>
       <v-spacer></v-spacer>
@@ -51,15 +51,14 @@
 
 <script setup>
 /* Imports */
-import ConversationsPanel from './conversations/ConversationsPanel.vue'
-import BrandPanel from './brand/BrandPanel.vue'
-import TeamPanel from './team/TeamPanel.vue'
-import RecommendationsPanel from './recommendations/RecommendationsPanel.vue'
-import { ref, onMounted, watch, inject } from 'vue'
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
+import { inject, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import moment from 'moment'
+import BrandPanel from './brand/BrandPanel.vue'
+import ConversationsPanel from './conversations/ConversationsPanel.vue'
+import RecommendationsPanel from './recommendations/RecommendationsPanel.vue'
+import TeamPanel from './team/TeamPanel.vue'
 const router = useRouter()
 
 /* Inject your bracket & toast APIs if desired */
