@@ -29,11 +29,22 @@
       </v-card-text>
 
       <v-card-actions class="justify-center">
-        <v-btn
-          v-if="!showCreate"
-          color="warning"
-          @click="showCreate = true"
-        >New User?</v-btn>
+            <v-btn
+              v-if="!showCreate"
+              color="warning"
+              @click="showCreate = true"
+            >New User?</v-btn>
+
+           
+          <v-btn
+            variant="text"
+            size="small"
+            color="primary"
+            :to="{ name: 'PasswordUpdate' }"
+          >
+            Forgot Password?
+          </v-btn>
+        
       </v-card-actions>
     </v-card>
   </v-layout>

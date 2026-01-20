@@ -1,5 +1,6 @@
 import Payment from "@/components/Payment";
 import Success from "@/components/Success.vue";
+import PasswordUpdate from "@/components/PasswordUpdate.vue";
 import TechShowcase from '@/components/TechShowcase.vue';
 import { useUserStore } from '@/store/user';
 import Settings from '@/views/Settings.vue';
@@ -84,6 +85,11 @@ const router = createRouter({
             path: "/success",
             name: "Success",
             component: Success
+        },
+        {
+            path: "/update-password",
+            name: "PasswordUpdate",
+            component: PasswordUpdate
         },
         {
             path: '/:pathMatch(.*)*',
