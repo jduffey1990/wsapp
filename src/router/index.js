@@ -1,17 +1,23 @@
+import PasswordUpdate from "@/components/PasswordUpdate.vue";
 import Payment from "@/components/Payment";
 import Success from "@/components/Success.vue";
-import PasswordUpdate from "@/components/PasswordUpdate.vue";
 import TechShowcase from '@/components/TechShowcase.vue';
 import { useUserStore } from '@/store/user';
 import Settings from '@/views/Settings.vue';
-import Dashboard from '@/views/dashboard/Dashboard.vue';
+import Dashboard from "@/views/dashboard/Dashboard.vue";
+import BrandPanel from "@/views/dashboard/brand/BrandPanel.vue";
 import Product from '@/views/dashboard/brand/Product.vue';
+import ConversationsPanel from "@/views/dashboard/conversations/ConversationsPanel.vue";
+import RecommendationsPanel from "@/views/dashboard/recommendations/RecommendationsPanel.vue";
+import RetailersPanel from "@/views/dashboard/retailers/RetailersPanel.vue";
+import TeamPanel from "@/views/dashboard/team/TeamPanel.vue";
 import Activate from '@/views/landing/Activate.vue';
 import BrandMatch from "@/views/landing/BrandMatchStep";
 import Home from '@/views/landing/Home.vue';
 import RetailerMatch from "@/views/landing/RetailerMatchStep.vue";
 import Login from '@/views/login-create/LoginPage.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL), // Use hash history for ghPages compatibility
@@ -58,9 +64,53 @@ const router = createRouter({
         },
         {
             path: '/dashboard',
-            name: 'Dashboard',
             component: Dashboard,
+            children: [
+                {
+                    path: '',
+                    redirect: '/dashboard/brand'
+                },
+                {
+                    path: 'brand',
+                    name: 'DashboardBrand',
+                    component: BrandPanel
+                },
+                {
+                    path: 'team',
+                    name: 'DashboardTeam',
+                    component: TeamPanel
+                },
+                {
+                    path: 'retailers',
+                    name: 'DashboardRetailers',
+                    component: RetailersPanel
+                },
+                {
+                    path: 'conversations',
+                    name: 'DashboardConversations',
+                    component: ConversationsPanel
+                },
+                {
+                    path: 'conversations/:id',
+                    name: 'ConversationDetail',
+                    component: ConversationsPanel, // Will show specific conversation
+                    props: true
+                },
+                {
+                    path: 'recommendations',
+                    name: 'DashboardRecommendations',
+                    component: RecommendationsPanel
+                }
+            ]
         },
+        //         {
+        // path: '/dashboard',
+        // name: 'Dashboard',
+        // component: Dashboard,
+        // children: [
+        //     // ...
+        // ]
+        // },
         {
             path: '/product',
             name: 'Product',

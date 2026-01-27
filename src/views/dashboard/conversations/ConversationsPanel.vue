@@ -234,10 +234,15 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, nextTick, watch } from 'vue'
-import { useUserStore } from '@/store/user'
-import { storeToRefs } from 'pinia'
-import moment from 'moment'
+import { useUserStore } from '@/store/user';
+import { inject, nextTick, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+
+import moment from 'moment';
+import { storeToRefs } from 'pinia';
+const route = useRoute();
+const selectedConversationId = ref(null);
+
 
 /* Inject APIs */
 const toast = inject('toast')?.show
@@ -464,9 +469,26 @@ async function deleteConversation() {
   }
 }
 
+const loadConversation = async (conversationId) => {
+  // Your logic to load and display the conversation
+  console.log('Loading conversation:', conversationId);
+};
+
 /* Lifecycle */
+// Watch for route param changes
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    selectedConversationId.value = newId;
+    // Load this specific conversation
+    loadConversation(newId);
+  }
+}, { immediate: true });
+
 onMounted(() => {
   fetchConversations()
+  if (route.params.id) {
+    loadConversation(route.params.id);
+  }
 })
 
 /* Watch for conversation changes to scroll */
