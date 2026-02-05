@@ -16,6 +16,8 @@ import BrandMatch from "@/views/landing/BrandMatchStep";
 import Home from '@/views/landing/Home.vue';
 import RetailerMatch from "@/views/landing/RetailerMatchStep.vue";
 import Login from '@/views/login-create/LoginPage.vue';
+import Workshop from '@/views/dashboard/workshop/WorkshopPanel.vue'
+import WorkshopRetailerDetail from "@/views/dashboard/workshop/WorkshopRetailerDetail.vue";
 import { createRouter, createWebHistory } from 'vue-router';
 
 
@@ -100,7 +102,17 @@ const router = createRouter({
                     path: 'recommendations',
                     name: 'DashboardRecommendations',
                     component: RecommendationsPanel
-                }
+                },
+                {
+                path: 'workshop',
+                name: 'Workshop',
+                component: Workshop
+                },
+                {
+                path: 'workshop/:retailerId',
+                name: 'WorkshopRetailerDetail',
+                component: WorkshopRetailerDetail
+                },
             ]
         },
         //         {

@@ -1,235 +1,221 @@
 <!-- src/views/dashboard/retailers/RetailersPanel.vue -->
 <template>
   <v-container fluid class="retailers-panel pa-0">
-    <!-- Header Bar -->
-    <div class="header-bar pa-4">
-      <v-row align="center" dense>
-        <v-col cols="12" md="auto" class="mb-2 mb-md-0">
-          <div>
-            <h1 class="text-h5 font-weight-bold mb-1">Retailer Discovery</h1>
-            <p class="text-body-2 text-medium-emphasis ma-0">
-              Find your perfect wholesale partners
-            </p>
-          </div>
-        </v-col>
+    <!-- Filter Configuration Page (First Visit) -->
+    <FilterConfigurationPage v-if="!filtersConfigured" />
 
-        <v-spacer class="d-none d-md-flex" />
+    <!-- Main Retailers View (After Configuration) -->
+    <template v-else>
+      <!-- Header Bar -->
+      <div class="header-bar pa-4">
+        <v-row align="center" dense>
+          <v-col cols="12" md="auto" class="mb-2 mb-md-0 text-center text-md-start">
+            <div>
+              <h1 class="text-h5 font-weight-bold mb-1">Retailer Discovery</h1>
+              <p class="text-body-2 text-medium-emphasis ma-0">
+                Find your perfect wholesale partners
+              </p>
+            </div>
+          </v-col>
 
-        <v-col cols="12" md="auto">
-          <!-- Filter Toggle Button -->
-          <v-btn
-            color="primary"
-            variant="tonal"
-            prepend-icon="mdi-filter-variant"
-            @click="filterDrawerOpen = !filterDrawerOpen"
-          >
-            Filters
-            <v-badge
-              v-if="activeFilterCount > 0"
-              :content="activeFilterCount"
-              color="error"
-              inline
-              class="ml-2"
-            />
-          </v-btn>
-        </v-col>
-      </v-row>
-    </div>
+          <v-spacer class="d-none d-md-flex" />
 
-    <!-- Main Content Area -->
-    <div class="content-wrapper">
-      <!-- Filter Drawer -->
-      <v-navigation-drawer
-        v-model="filterDrawerOpen"
-        temporary
-        location="left"
-        width="320"
-        class="filter-drawer"
-      >
-        <RetailerFilters @close="filterDrawerOpen = false" />
-      </v-navigation-drawer>
+          <v-col cols="12" md="auto">
+            <div class="d-flex ga-2 justify-center justify-md-start">
+              <!-- Edit Filters Button -->
+              <v-btn
+                color="secondary"
+                variant="outlined"
+                prepend-icon="mdi-pencil"
+                @click="handleEditFilters"
+              >
+                Edit Filters
+              </v-btn>
 
-      <!-- Main Content -->
-      <div class="main-content pa-4">
-        <!-- Search Bar & Controls -->
-        <v-card class="mb-4 search-card" elevation="0">
-          <v-card-text>
-            <v-row dense align="center">
-              <v-col cols="12" md="7">
-                <v-text-field
-                  v-model="searchInput"
-                  placeholder="Search retailers by name, city, or type..."
-                  prepend-inner-icon="mdi-magnify"
-                  variant="outlined"
-                  density="comfortable"
-                  hide-details
-                  clearable
-                  @update:model-value="debouncedSearch"
-                  @click:clear="handleClearSearch"
+              <!-- Filter Toggle Button -->
+              <v-btn
+                color="primary"
+                variant="tonal"
+                prepend-icon="mdi-filter-variant"
+                @click="filterDrawerOpen = !filterDrawerOpen"
+              >
+                Filters
+                <v-badge
+                  v-if="activeFilterCount > 0"
+                  :content="activeFilterCount"
+                  color="error"
+                  inline
+                  class="ml-2"
                 />
-              </v-col>
-              
-              <v-col cols="12" md="5">
-                <div class="d-flex ga-2">
-                  <v-select
-                    v-model="sortBy"
-                    :items="sortOptions"
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="content-wrapper">
+        <!-- Filter Drawer -->
+        <v-navigation-drawer
+          v-model="filterDrawerOpen"
+          temporary
+          location="left"
+          width="320"
+          class="filter-drawer"
+        >
+          <RetailerFilters @close="filterDrawerOpen = false" />
+        </v-navigation-drawer>
+
+        <!-- Main Content -->
+        <div class="main-content pa-4">
+          <!-- Search Bar & Controls -->
+          <v-card class="mb-4 search-card" elevation="0">
+            <v-card-text>
+              <v-row dense align="center">
+                <v-col cols="12" md="7">
+                  <v-text-field
+                    v-model="searchInput"
+                    placeholder="Search retailers by name, city, or type..."
+                    prepend-inner-icon="mdi-magnify"
                     variant="outlined"
                     density="comfortable"
                     hide-details
-                    label="Sort by"
-                    @update:model-value="handleSortChange"
+                    clearable
+                    @update:model-value="debouncedSearch"
+                    @click:clear="handleClearSearch"
                   />
-                  
-                  <v-btn
-                    :icon="sortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down'"
-                    variant="outlined"
-                    @click="toggleSortOrder"
-                  />
-                </div>
-              </v-col>
-            </v-row>
+                </v-col>
+                
+                <v-col cols="12" md="5">
+                  <div class="d-flex ga-2">
+                    <v-select
+                      v-model="sortBy"
+                      :items="sortOptions"
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      label="Sort by"
+                      @update:model-value="handleSortChange"
+                    />
+                    
+                    <v-btn
+                      :icon="sortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down'"
+                      variant="outlined"
+                      @click="toggleSortOrder"
+                    />
+                  </div>
+                </v-col>
+              </v-row>
 
-            <!-- Active Filters Chips -->
-            <v-row v-if="hasActiveFilters" dense class="mt-2">
-              <v-col cols="12">
-                <div class="d-flex flex-wrap ga-2 align-center">
-                  <span class="text-caption text-medium-emphasis">Active:</span>
-                  
-                  <!-- State chips -->
-                  <v-chip
-                    v-for="state in filters.state"
-                    :key="`state-${state}`"
-                    size="small"
-                    closable
-                    @click:close="removeFilter('state', state)"
-                  >
-                    {{ state }}
-                  </v-chip>
+              <!-- Active Filters Chips -->
+              <v-row v-if="hasActiveFilters" dense class="mt-2">
+                <v-col cols="12">
+                  <div class="d-flex flex-wrap ga-2 align-center">
+                    <span class="text-caption text-medium-emphasis">Active:</span>
+                    
+                    <!-- State chips -->
+                    <v-chip
+                      v-for="state in filters.state"
+                      :key="`state-${state}`"
+                      size="small"
+                      closable
+                      @click:close="removeFilter('state', state)"
+                    >
+                      {{ state }}
+                    </v-chip>
 
-                  <!-- Retailer Type chips -->
-                  <v-chip
-                    v-for="type in filters.retailerType"
-                    :key="`type-${type}`"
-                    size="small"
-                    closable
-                    @click:close="removeFilter('retailerType', type)"
-                  >
-                    {{ type }}
-                  </v-chip>
+                    <!-- Retailer Type chips -->
+                    <v-chip
+                      v-for="type in filters.retailerType"
+                      :key="`type-${type}`"
+                      size="small"
+                      closable
+                      @click:close="removeFilter('retailerType', type)"
+                    >
+                      {{ type }}
+                    </v-chip>
 
-                  <!-- Price Point chips -->
-                  <v-chip
-                    v-for="price in filters.pricePoint"
-                    :key="`price-${price}`"
-                    size="small"
-                    closable
-                    @click:close="removeFilter('pricePoint', price)"
-                  >
-                    {{ price }}
-                  </v-chip>
+                    <!-- Price Point chips -->
+                    <v-chip
+                      v-for="price in filters.pricePoint"
+                      :key="`price-${price}`"
+                      size="small"
+                      closable
+                      @click:close="removeFilter('pricePoint', price)"
+                    >
+                      {{ price }}
+                    </v-chip>
 
-                  <!-- Categories chips -->
-                  <v-chip
-                    v-for="cat in filters.categories"
-                    :key="`cat-${cat}`"
-                    size="small"
-                    closable
-                    @click:close="removeFilter('categories', cat)"
-                  >
-                    {{ cat }}
-                  </v-chip>
+                    <!-- Categories chips -->
+                    <v-chip
+                      v-for="cat in filters.categories"
+                      :key="`cat-${cat}`"
+                      size="small"
+                      closable
+                      @click:close="removeFilter('categories', cat)"
+                    >
+                      {{ cat }}
+                    </v-chip>
 
-                  <!-- Aesthetics chips -->
-                  <v-chip
-                    v-for="aesthetic in filters.aesthetics"
-                    :key="`aesthetic-${aesthetic}`"
-                    size="small"
-                    closable
-                    @click:close="removeFilter('aesthetics', aesthetic)"
-                  >
-                    {{ aesthetic }}
-                  </v-chip>
+                    <v-btn
+                      size="small"
+                      variant="text"
+                      color="error"
+                      @click="clearAllFilters"
+                    >
+                      Clear All
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
 
-                  <!-- Clear All -->
-                  <v-btn
-                    size="small"
-                    variant="text"
-                    color="error"
-                    @click="clearAllFilters"
-                  >
-                    Clear all
-                  </v-btn>
-                </div>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
+          <!-- Loading State -->
+          <div v-if="loading" class="mt-8">
+            <v-skeleton-loader type="card@3" />
+          </div>
 
-        <!-- Results Summary & Pagination Controls -->
-        <div class="d-flex align-center justify-space-between mb-4">
-          <p class="text-body-2 text-medium-emphasis ma-0">
-            <template v-if="!loading">
-              Showing {{ retailers.length }} of {{ pagination.total }} retailers
-            </template>
-          </p>
+          <!-- Empty State -->
+          <v-card v-else-if="retailers.length === 0" class="pa-12 empty-state-card" elevation="0">
+            <v-icon size="80" color="grey-lighten-1">mdi-store-search-outline</v-icon>
+            <h3 class="text-h6 mt-4 mb-2">No retailers found</h3>
+            <p class="text-body-2 text-medium-emphasis mb-4">
+              Try adjusting your filters or search query
+            </p>
+            <v-btn
+              v-if="hasActiveFilters"
+              color="primary"
+              variant="outlined"
+              @click="clearAllFilters"
+            >
+              Clear all filters
+            </v-btn>
+          </v-card>
 
-          <v-select
-            v-model="pagination.limit"
-            :items="[10, 20, 50, 100]"
-            variant="outlined"
-            density="compact"
-            hide-details
-            style="max-width: 120px;"
-            @update:model-value="handleLimitChange"
-          />
-        </div>
+          <!-- Retailers Grid -->
+          <div v-else class="retailers-grid">
+            <RetailerCard
+              v-for="retailer in retailers"
+              :key="retailer.id"
+              :retailer="retailer"
+              class="mb-3"
+              @begin-conversation="handleBeginConversation"
+            />
+          </div>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="text-center py-12">
-          <v-progress-circular indeterminate color="primary" size="64" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading retailers...</p>
-        </div>
-
-        <!-- Empty State -->
-        <v-card v-else-if="retailers.length === 0" class="text-center pa-12 empty-state-card" elevation="0">
-          <v-icon size="80" color="grey-lighten-1">mdi-store-search-outline</v-icon>
-          <h3 class="text-h6 mt-4 mb-2">No retailers found</h3>
-          <p class="text-body-2 text-medium-emphasis mb-4">
-            Try adjusting your filters or search query
-          </p>
-          <v-btn
-            v-if="hasActiveFilters"
-            color="primary"
-            variant="outlined"
-            @click="clearAllFilters"
-          >
-            Clear all filters
-          </v-btn>
-        </v-card>
-
-        <!-- Retailers Grid -->
-        <div v-else class="retailers-grid">
-          <RetailerCard
-            v-for="retailer in retailers"
-            :key="retailer.id"
-            :retailer="retailer"
-            class="mb-3"
-            @begin-conversation="handleBeginConversation"
-          />
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="pagination.totalPages > 1" class="d-flex justify-center mt-6">
-          <v-pagination
-            v-model="pagination.page"
-            :length="pagination.totalPages"
-            :total-visible="7"
-            @update:model-value="handlePageChange"
-          />
+          <!-- Pagination -->
+          <div v-if="pagination.totalPages > 1" class="d-flex justify-center mt-6">
+            <v-pagination
+              v-model="pagination.page"
+              :length="pagination.totalPages"
+              :total-visible="7"
+              @update:model-value="handlePageChange"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </template>
 
     <!-- Begin Conversation Modal -->
     <BeginConversationModal
@@ -247,6 +233,7 @@ import { storeToRefs } from 'pinia';
 import { inject, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BeginConversationModal from './BeginConversationModal.vue';
+import FilterConfigurationPage from './FilterConfigurationPage.vue';
 import RetailerCard from './RetailerCard.vue';
 import RetailerFilters from './RetailerFilters.vue';
 
@@ -262,7 +249,8 @@ const {
   loading,
   searchQuery,
   hasActiveFilters,
-  activeFilterCount
+  activeFilterCount,
+  filtersConfigured
 } = storeToRefs(retailersStore);
 
 // Local state
@@ -286,14 +274,16 @@ const sortOptions = [
 // Watch filters and auto-fetch with debounce
 let filterTimeout = null;
 watch(filters, () => {
-  clearTimeout(filterTimeout);
-  filterTimeout = setTimeout(async () => {
-    try {
-      await retailersStore.fetchRetailers(true);
-    } catch (error) {
-      toast?.show({ message: 'Failed to apply filters', error: true });
-    }
-  }, 500);
+  if (filtersConfigured.value) {
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(async () => {
+      try {
+        await retailersStore.fetchRetailers(true);
+      } catch (error) {
+        toast?.show({ message: 'Failed to apply filters', error: true });
+      }
+    }, 500);
+  }
 }, { deep: true });
 
 // Debounced search
@@ -327,43 +317,37 @@ const toggleSortOrder = async () => {
   try {
     await retailersStore.updateSort(sortBy.value, sortOrder.value);
   } catch (error) {
-    toast?.show({ message: 'Failed to toggle sort order', error: true });
+    toast?.show({ message: 'Failed to update sort', error: true });
   }
 };
 
 const handlePageChange = async (page) => {
   try {
     await retailersStore.goToPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (error) {
-    toast?.show({ message: 'Failed to load page', error: true });
+    toast?.show({ message: 'Failed to change page', error: true });
   }
 };
 
-const handleLimitChange = async (limit) => {
-  try {
-    await retailersStore.changeLimit(limit);
-  } catch (error) {
-    toast?.show({ message: 'Failed to update items per page', error: true });
-  }
-};
-
-const removeFilter = (filterName, value) => {
-  const currentFilter = filters.value[filterName];
-  if (Array.isArray(currentFilter)) {
-    filters.value[filterName] = currentFilter.filter(v => v !== value);
-  } else {
-    filters.value[filterName] = null;
+const removeFilter = async (filterKey, value) => {
+  const currentValue = filters.value[filterKey];
+  if (Array.isArray(currentValue)) {
+    const newValue = currentValue.filter(v => v !== value);
+    filters.value[filterKey] = newValue;
   }
 };
 
 const clearAllFilters = async () => {
-  searchInput.value = '';
   try {
     await retailersStore.resetFilters();
   } catch (error) {
-    toast?.show({ message: 'Failed to reset filters', error: true });
+    toast?.show({ message: 'Failed to clear filters', error: true });
   }
+};
+
+const handleEditFilters = () => {
+  // Return to filter configuration page
+  retailersStore.resetFilterConfiguration();
 };
 
 const handleBeginConversation = (retailer) => {
@@ -375,29 +359,25 @@ const handleBeginConversation = (retailer) => {
 
 const handleConversationStarted = (conversationId) => {
   conversationModal.value.open = false;
-  // Navigate to specific conversation using nested route
-  router.push(`/dashboard/conversations/${conversationId}`);
+  router.push({
+    name: 'Conversations',
+    params: { id: conversationId }
+  });
 };
 
-// Initialize
+// Mount
 onMounted(async () => {
   try {
+    // Load filter options
     await retailersStore.fetchFilterOptions();
+    
+    // Only fetch retailers if filters are already configured
+    if (filtersConfigured.value) {
+      await retailersStore.fetchRetailers();
+    }
   } catch (error) {
-    toast?.show({ message: 'Failed to load filter options', error: true });
-  }
-  
-  try {
-    await retailersStore.fetchRetailers();
-  } catch (error) {
-    toast?.show({ message: 'Failed to load retailers', error: true });
-  }
-});
-
-// Sync search input with store
-watch(searchQuery, (newVal) => {
-  if (searchInput.value !== newVal) {
-    searchInput.value = newVal;
+    console.error('Error initializing retailers:', error);
+    toast?.show({ message: 'Failed to initialize', error: true });
   }
 });
 </script>
@@ -405,16 +385,15 @@ watch(searchQuery, (newVal) => {
 <style scoped>
 .retailers-panel {
   min-height: 100vh;
-  background: rgba(255, 255, 255, 0.3);
 }
 
 .header-bar {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 9;
 }
 
 .content-wrapper {
@@ -428,58 +407,44 @@ watch(searchQuery, (newVal) => {
 
 .search-card {
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.18));
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.18));
   backdrop-filter: blur(6px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.empty-state-card {
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.18));
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.06);
 }
 
 .retailers-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 16px;
 }
 
-/* Single column on mobile */
-@media (max-width: 959px) {
+.empty-state-card {
+  text-align: center;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.18));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.ga-2 {
+  gap: 0.5rem;
+}
+
+/* Chip styling */
+:deep(.v-chip) {
+  font-weight: 500;
+}
+
+/* Mobile responsive */
+@media (max-width: 780px) {
   .retailers-grid {
     grid-template-columns: 1fr;
   }
-}
 
-/* Two columns on medium screens */
-@media (min-width: 960px) and (max-width: 1439px) {
-  .retailers-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Still one column on large screens to keep cards readable */
-@media (min-width: 1440px) {
-  .retailers-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.filter-drawer {
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Mobile adjustments */
-@media (max-width: 700px) {
-  .header-bar {
-    backdrop-filter: blur(8px);
-  }
-
-  .search-card {
-    border-radius: 12px;
+  .header-bar .v-row {
+    gap: 8px;
   }
 }
 </style>

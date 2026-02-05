@@ -19,14 +19,17 @@
       <v-tab to="/dashboard/brand">
         Brand & Products
       </v-tab>
-      <v-tab to="/dashboard/team">
+      <!-- <v-tab to="/dashboard/team">
         Team
-      </v-tab>
+      </v-tab> -->
       <v-tab to="/dashboard/retailers">
         Retailers
       </v-tab>
-      <v-tab to="/dashboard/conversations">
+      <!-- <v-tab to="/dashboard/conversations">
         Conversations
+      </v-tab> -->
+      <v-tab to="/dashboard/workshop">
+        Workshop
       </v-tab>
       <v-tab to="/dashboard/recommendations">
         Recommendations
@@ -70,20 +73,20 @@ const { user } = storeToRefs(userStore)
 /* Navigation items for dropdown */
 const navigationItems = [
   { label: 'Brand & Products', path: '/dashboard/brand' },
-  { label: 'Team', path: '/dashboard/team' },
   { label: 'Retailers', path: '/dashboard/retailers' },
+  { label: 'Workshop', path: '/dashboard/workshop' },
+  { label: 'Recommendations', path: '/dashboard/recommendations' },
+  { label: 'Team', path: '/dashboard/team' },
   { label: 'Conversations', path: '/dashboard/conversations' },
-  { label: 'Recommendations', path: '/dashboard/recommendations' }
 ]
 
 /* Compute current tab based on route */
 const currentTab = computed(() => {
   const path = route.path
   if (path.includes('/brand')) return 0
-  if (path.includes('/team')) return 1
-  if (path.includes('/retailers')) return 2
-  if (path.includes('/conversations')) return 3
-  if (path.includes('/recommendations')) return 4
+  if (path.includes('/retailers')) return 1  // Changed from 2
+  if (path.includes('/workshop')) return 2  // NEW
+  if (path.includes('/recommendations')) return 3  // Changed from 4
   return 0
 })
 
@@ -127,6 +130,7 @@ const navigateTo = (path) => {
   }
   .mobile-nav {
     display: flex !important;
+    justify-content: center;
   }
   
   .dashboard-title {
@@ -137,6 +141,7 @@ const navigateTo = (path) => {
 @media (min-width: 780px) {
   .desktop-tabs {
     display: flex !important;
+  
   }
   .mobile-nav {
     display: none !important;

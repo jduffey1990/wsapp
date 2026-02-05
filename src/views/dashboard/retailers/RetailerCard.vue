@@ -1,120 +1,83 @@
 <!-- src/views/dashboard/retailers/RetailerCard.vue -->
 <template>
-  <v-card
-    class="retailer-card"
-    elevation="0"
-    :ripple="false"
-  >
-    <v-card-text class="pa-5">
+  <v-card class="retailer-card" elevation="2" hover>
+    <v-card-text class="pa-0">
       <!-- Header Section -->
-      <div class="card-header mb-4">
-        <div class="d-flex align-center gap-3 mb-3">
-          <v-avatar
-            size="56"
-            color="primary"
-            class="text-h5 font-weight-bold avatar-shadow"
-          >
-            {{ retailer.businessName.charAt(0) }}
+      <div class="header-section pa-4 pb-3">
+        <div class="d-flex align-center mb-3">
+          <v-avatar size="56" color="primary" class="mr-3">
+            <span class="text-h6">{{ retailer.businessName?.charAt(0) || '?' }}</span>
           </v-avatar>
-
-          <div class="flex-grow-1">
-            <h3 class="text-h5 font-weight-bold mb-1" style="line-height: 1.2;">
-              {{ retailer.businessName }}
-            </h3>
-            <div class="d-flex align-center gap-2 flex-wrap">
-              <span class="text-body-2 text-medium-emphasis d-flex align-center">
-                <v-icon size="16" class="mr-1">mdi-map-marker</v-icon>
-                {{ formatLocation(retailer) }}
-              </span>
-              <v-chip
-                v-if="retailer.retailerType"
-                size="x-small"
-                variant="tonal"
-                color="primary"
-                class="ml-1"
-              >
-                {{ retailer.retailerType }}
-              </v-chip>
+          
+          <div class="flex-1">
+            <h3 class="text-h6 mb-1">{{ retailer.businessName }}</h3>
+            <div class="text-caption text-medium-emphasis">
+              <v-icon size="14" class="mr-1">mdi-map-marker</v-icon>
+              {{ formatLocation(retailer) }}
             </div>
           </div>
+        </div>
 
-          <!-- Quick Actions (Desktop) -->
-          <div class="d-none d-md-flex gap-1">
-            <v-btn
-              v-if="retailer.website"
-              :href="retailer.website"
-              target="_blank"
-              variant="text"
-              size="small"
-              icon="mdi-web"
-              density="comfortable"
-            />
-            <v-btn
-              v-if="retailer.linkedinUrl"
-              :href="retailer.linkedinUrl"
-              target="_blank"
-              variant="text"
-              size="small"
-              icon="mdi-linkedin"
-              density="comfortable"
-            />
-            <v-btn
-              v-if="retailer.contactEmail"
-              :href="`mailto:${retailer.contactEmail}`"
-              variant="text"
-              size="small"
-              icon="mdi-email"
-              density="comfortable"
-            />
-          </div>
+        <!-- Type & Price Chips -->
+        <div class="d-flex gap-2 mb-2">
+          <v-chip
+            v-if="retailer.retailerType"
+            size="small"
+            color="success"
+            variant="tonal"
+          >
+            {{ retailer.retailerType }}
+          </v-chip>
+          <v-chip
+            v-if="retailer.pricePointCategory"
+            size="small"
+            color="secondary"
+            variant="tonal"
+          >
+            {{ retailer.pricePointCategory }}
+          </v-chip>
         </div>
       </div>
+
+      <v-divider />
 
       <!-- Stats Grid -->
-      <div class="stats-grid mb-4">
-        <div v-if="retailer.numLocations !== null" class="stat-box">
+      <div class="stats-grid pa-4">
+        <div class="stat-item">
           <div class="stat-label">Locations</div>
-          <div class="stat-value">{{ retailer.numLocations }}</div>
+          <div class="stat-value">{{ retailer.numLocations || 'N/A' }}</div>
         </div>
-
-        <div v-if="retailer.pricePointCategory" class="stat-box">
-          <div class="stat-label">Price Point</div>
-          <div class="stat-value">{{ retailer.pricePointCategory }}</div>
+        
+        <div class="stat-item">
+          <div class="stat-label">Revenue</div>
+          <div class="stat-value">
+            {{ retailer.estAnnualRevenue ? `$${(retailer.estAnnualRevenue / 1000000).toFixed(1)}M` : 'N/A' }}
+          </div>
         </div>
-
-        <div v-if="retailer.customerReviewRating" class="stat-box">
+        
+        <div class="stat-item">
           <div class="stat-label">Rating</div>
-          <div class="stat-value d-flex align-center gap-1">
-            <v-icon size="18" color="amber">mdi-star</v-icon>
-            {{ retailer.customerReviewRating.toFixed(1) }}
+          <div class="stat-value">
+            {{ retailer.customerReviewRating ? `${retailer.customerReviewRating}★` : 'N/A' }}
           </div>
         </div>
-
-        <div v-if="retailer.estAnnualRevenue" class="stat-box">
-          <div class="stat-label">Est. Revenue</div>
-          <div class="stat-value">{{ formatRevenue(retailer.estAnnualRevenue) }}</div>
-        </div>
-
-        <div v-if="retailer.avgOpeningOrderSize" class="stat-box stat-box-highlight">
-          <div class="stat-label">Opening Order</div>
-          <div class="stat-value text-primary font-weight-bold">
-            {{ formatCurrency(retailer.avgOpeningOrderSize) }}
-          </div>
-        </div>
-
-        <div v-if="retailer.paymentTerms && retailer.paymentTerms.length" class="stat-box">
-          <div class="stat-label">Payment Terms</div>
-          <div class="stat-value text-caption">
-            {{ retailer.paymentTerms.join(', ') }}
+        
+        <div class="stat-item">
+          <div class="stat-label">Order Size</div>
+          <div class="stat-value">
+            {{ retailer.avgOpeningOrderSize ? `$${(retailer.avgOpeningOrderSize / 1000).toFixed(0)}k` : 'N/A' }}
           </div>
         </div>
       </div>
 
-      <!-- Tags Section -->
-      <div class="tags-section mb-4">
+      <v-divider />
+
+      <!-- Details Section -->
+      <div class="details-section pa-4">
         <!-- Categories -->
-        <div v-if="retailer.carriedCategories && retailer.carriedCategories.length" class="mb-2">
-          <div class="d-flex align-center justify-center flex-wrap gap-1">
+        <div v-if="retailer.carriedCategories?.length > 0" class="mb-3">
+          <div class="text-caption text-medium-emphasis mb-2">Categories</div>
+          <div class="d-flex flex-wrap gap-1">
             <v-chip
               v-for="category in retailer.carriedCategories.slice(0, 4)"
               :key="category"
@@ -172,15 +135,29 @@
       <!-- Action Section -->
       <div class="action-section">
         <v-btn
+          v-if="!isInWorkshop"
           color="primary"
           variant="flat"
           size="large"
-          prepend-icon="mdi-message-text"
+          prepend-icon="mdi-plus"
           block
           class="action-button"
-          @click="handleBeginConversation"
+          @click="handleAddToWorkshop"
         >
-          Begin Conversation
+          Add to Workshop
+        </v-btn>
+        
+        <v-btn
+          v-else
+          color="error"
+          variant="outlined"
+          size="large"
+          prepend-icon="mdi-close"
+          block
+          class="action-button"
+          @click="handleRemoveFromWorkshop"
+        >
+          Remove from Workshop
         </v-btn>
       </div>
     </v-card-text>
@@ -188,7 +165,10 @@
 </template>
 
 <script setup>
-import { defineEmits, defineProps } from 'vue';
+import { useUserStore } from '@/store/user';
+import { useWorkshopStore } from '@/store/workshop';
+import { storeToRefs } from 'pinia';
+import { computed, inject } from 'vue';
 
 const props = defineProps({
   retailer: {
@@ -197,170 +177,132 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['begin-conversation']);
+const workshopStore = useWorkshopStore();
+const { user } = storeToRefs(useUserStore());
+const toast = inject('toast');
+
+// Check if retailer is in workshop
+const isInWorkshop = computed(() => {
+  return workshopStore.isInWorkshop(props.retailer.id);
+});
 
 const formatLocation = (retailer) => {
   const parts = [];
   if (retailer.city) parts.push(retailer.city);
   if (retailer.state) parts.push(retailer.state);
   if (retailer.usRegion && parts.length === 0) parts.push(retailer.usRegion);
-  return parts.length > 0 ? parts.join(', ') : 'Location not specified';
+  return parts.length > 0 ? parts.join(', ') : 'Location Unknown';
 };
 
-const formatRevenue = (revenue) => {
-  if (revenue >= 1000000000) {
-    return `$${(revenue / 1000000000).toFixed(1)}B`;
-  } else if (revenue >= 1000000) {
-    return `$${(revenue / 1000000).toFixed(1)}M`;
-  } else if (revenue >= 1000) {
-    return `$${(revenue / 1000).toFixed(0)}K`;
+const handleAddToWorkshop = () => {
+  try {
+    workshopStore.addToWorkshop(props.retailer, user.value);
+    toast?.show({
+      message: `${props.retailer.businessName} added to workshop`,
+      error: false
+    });
+  } catch (error) {
+    console.error('Error adding to workshop:', error);
+    toast?.show({
+      message: 'Failed to add to workshop',
+      error: true
+    });
   }
-  return `$${revenue}`;
 };
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-const handleBeginConversation = () => {
-  emit('begin-conversation', props.retailer);
+const handleRemoveFromWorkshop = () => {
+  try {
+    workshopStore.removeFromWorkshop(props.retailer.id);
+    toast?.show({
+      message: `${props.retailer.businessName} removed from workshop`,
+      error: false
+    });
+  } catch (error) {
+    console.error('Error removing from workshop:', error);
+    toast?.show({
+      message: 'Failed to remove from workshop',
+      error: true
+    });
+  }
 };
 </script>
 
 <style scoped>
 .retailer-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.25) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.18));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-}
-
-.retailer-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--v-theme-primary), var(--v-theme-info));
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
 .retailer-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 16px 48px rgba(0, 0, 0, 0.12);
-  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 12px 32px rgba(0,0,0,0.1) !important;
 }
 
-.retailer-card:hover::before {
-  opacity: 1;
+.header-section {
+  background: linear-gradient(135deg, rgba(91, 146, 121, 0.08), rgba(91, 146, 121, 0.04));
+  border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
-.card-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.avatar-shadow {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
-.stat-box {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  padding: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-}
-
-.stat-box:hover {
-  background: rgba(255, 255, 255, 0.5);
-  transform: translateY(-1px);
-}
-
-.stat-box-highlight {
-  background: linear-gradient(135deg, rgba(91, 146, 121, 0.08), rgba(143, 203, 155, 0.08));
-  border: 1px solid rgba(91, 146, 121, 0.2);
+.stat-item {
+  text-align: center;
 }
 
 .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
+  color: rgba(0,0,0,0.56);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: rgba(0, 0, 0, 0.56);
+  letter-spacing: 0.04em;
   margin-bottom: 4px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .stat-value {
-  font-size: 0.95rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.87);
-  line-height: 1.2;
 }
 
-/* Tags Section */
-.tags-section {
-  min-height: 40px;
+.details-section {
+  flex: 1;
 }
 
-/* Action Button */
+.action-section {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(0,0,0,0.04);
+}
+
 .action-button {
-  border-radius: 50px;
   font-weight: 600;
+  letter-spacing: 0.5px;
   text-transform: none;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 12px rgba(91, 146, 121, 0.25);
 }
 
-.action-button:hover {
-  box-shadow: 0 6px 16px rgba(91, 146, 121, 0.35);
+/* Chips styling */
+:deep(.v-chip) {
+  font-weight: 500;
 }
 
-/* Responsive adjustments */
-@media (max-width: 960px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.gap-1 {
+  gap: 4px;
 }
 
-@media (max-width: 700px) {
-  .retailer-card {
-    border-radius: 12px;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .stat-box {
-    padding: 10px;
-  }
-
-  .stat-label {
-    font-size: 0.65rem;
-  }
-
-  .stat-value {
-    font-size: 0.85rem;
-  }
+.gap-2 {
+  gap: 8px;
 }
 </style>
