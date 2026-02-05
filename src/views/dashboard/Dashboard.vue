@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    
+    <!-- Top section with user dashboard header -->
     <div class="top_line_dash">
       <div>
         <div class="text-h4 mb-2 dashboard-title">
@@ -10,8 +10,12 @@
       <v-spacer></v-spacer>
     </div>
 
-    
-    <v-tabs :model-value="currentTab" background-color="primary" class="white--text">
+    <!-- Desktop Tabs (hidden on mobile) -->
+    <v-tabs 
+      :model-value="currentTab" 
+      background-color="primary" 
+      class="white--text desktop-tabs"
+    >
       <v-tab to="/dashboard/brand">
         Brand & Products
       </v-tab>
@@ -29,37 +33,48 @@
       </v-tab>
     </v-tabs>
 
-    
+    <!-- Mobile Dropdown (hidden on desktop) -->
+    <v-select
+      :model-value="currentRoute"
+      :items="navigationItems"
+      item-title="label"
+      item-value="path"
+      variant="outlined"
+      density="comfortable"
+      prepend-inner-icon="mdi-menu"
+      class="mobile-nav mb-4"
+      hide-details
+      @update:model-value="navigateTo"
+    />
+
+    <!-- Content -->
     <div class="mt-4">
       <router-view />
     </div>
   </v-container>
 </template>
 
-
-<!-- <template>
-  <v-container fluid>
-    <h1>Dashboard Works!</h1>
-    <p>Current route: {{ $route.path }}</p>
-    <router-view />
-  </v-container>
-</template> -->
-
-
 <script setup>
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-console.log('🚀 Dashboard component loaded')
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
-console.log('📍 Current route:', route.path)
+const router = useRouter()
 
 /* Pull user info from store */
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
+
+/* Navigation items for dropdown */
+const navigationItems = [
+  { label: 'Brand & Products', path: '/dashboard/brand' },
+  { label: 'Team', path: '/dashboard/team' },
+  { label: 'Retailers', path: '/dashboard/retailers' },
+  { label: 'Conversations', path: '/dashboard/conversations' },
+  { label: 'Recommendations', path: '/dashboard/recommendations' }
+]
 
 /* Compute current tab based on route */
 const currentTab = computed(() => {
@@ -71,13 +86,15 @@ const currentTab = computed(() => {
   if (path.includes('/recommendations')) return 4
   return 0
 })
-</script>
 
-<!-- <script setup>
-import { useRoute } from 'vue-router';
-const route = useRoute()
-console.log('Dashboard loaded, route:', route.path)
-</script> -->
+/* Current route for dropdown */
+const currentRoute = computed(() => route.path)
+
+/* Navigate to selected route */
+const navigateTo = (path) => {
+  router.push(path)
+}
+</script>
 
 <style scoped>
 .card {
@@ -103,11 +120,31 @@ console.log('Dashboard loaded, route:', route.path)
   padding-bottom: 10px;
 }
 
-@media (max-width: 700px) {
+/* Custom responsive breakpoint at 780px */
+@media (max-width: 779px) {
+  .desktop-tabs {
+    display: none !important;
+  }
+  .mobile-nav {
+    display: flex !important;
+  }
+  
   .dashboard-title {
     text-align: center;
   }
-  
+}
+
+@media (min-width: 780px) {
+  .desktop-tabs {
+    display: flex !important;
+  }
+  .mobile-nav {
+    display: none !important;
+  }
+}
+
+/* Additional mobile styles */
+@media (max-width: 700px) {
   elevation-1 {
     font-size: x-small;
   }

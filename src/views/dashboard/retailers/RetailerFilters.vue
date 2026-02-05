@@ -478,11 +478,14 @@ const handleResetAll = async () => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(249, 249, 249, 0.95));
 }
 
 .drawer-header {
   flex-shrink: 0;
-  background: white;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .filters-content {
@@ -496,15 +499,16 @@ const handleResetAll = async () => {
 }
 
 .filters-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 3px;
 }
 
 .filters-content::-webkit-scrollbar-thumb {
-  background: #888;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
 
 .filters-content::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(0, 0, 0, 0.3);
 }
 </style>

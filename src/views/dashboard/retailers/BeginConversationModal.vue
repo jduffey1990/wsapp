@@ -287,16 +287,23 @@ watch(() => props.modelValue, (isOpen) => {
 
 .product-card {
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .product-card:hover {
   background-color: rgba(0, 0, 0, 0.02);
+  transform: translateX(2px);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .product-card.selected {
   border-color: rgb(var(--v-theme-primary));
-  background-color: rgba(var(--v-theme-primary), 0.05);
+  background: linear-gradient(180deg,
+    rgba(var(--v-theme-primary), 0.08),
+    rgba(var(--v-theme-primary), 0.12));
+  border-width: 2px;
 }
 
 /* Custom scrollbar for products */
@@ -305,16 +312,16 @@ watch(() => props.modelValue, (isOpen) => {
 }
 
 .products-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(0, 0, 0, 0.02);
   border-radius: 3px;
 }
 
 .products-scroll::-webkit-scrollbar-thumb {
-  background: #888;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
 
 .products-scroll::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(0, 0, 0, 0.3);
 }
 </style>

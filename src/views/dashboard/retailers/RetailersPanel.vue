@@ -52,7 +52,7 @@
       <!-- Main Content -->
       <div class="main-content pa-4">
         <!-- Search Bar & Controls -->
-        <v-card class="mb-4" elevation="0" color="grey-lighten-4">
+        <v-card class="mb-4 search-card" elevation="0">
           <v-card-text>
             <v-row dense align="center">
               <v-col cols="12" md="7">
@@ -192,7 +192,7 @@
         </div>
 
         <!-- Empty State -->
-        <v-card v-else-if="retailers.length === 0" class="text-center pa-12" elevation="0">
+        <v-card v-else-if="retailers.length === 0" class="text-center pa-12 empty-state-card" elevation="0">
           <v-icon size="80" color="grey-lighten-1">mdi-store-search-outline</v-icon>
           <h3 class="text-h6 mt-4 mb-2">No retailers found</h3>
           <p class="text-body-2 text-medium-emphasis mb-4">
@@ -241,14 +241,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, inject } from 'vue';
-import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
 import { useRetailersStore } from '@/store/retailers';
 import { useUserStore } from '@/store/user';
-import RetailerFilters from './RetailerFilters.vue';
-import RetailerCard from './RetailerCard.vue';
+import { storeToRefs } from 'pinia';
+import { inject, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import BeginConversationModal from './BeginConversationModal.vue';
+import RetailerCard from './RetailerCard.vue';
+import RetailerFilters from './RetailerFilters.vue';
 
 const router = useRouter();
 const retailersStore = useRetailersStore();
@@ -405,12 +405,13 @@ watch(searchQuery, (newVal) => {
 <style scoped>
 .retailers-panel {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .header-bar {
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -423,6 +424,22 @@ watch(searchQuery, (newVal) => {
 .main-content {
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.search-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.18));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.empty-state-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.18));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .retailers-grid {
@@ -453,5 +470,16 @@ watch(searchQuery, (newVal) => {
 
 .filter-drawer {
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile adjustments */
+@media (max-width: 700px) {
+  .header-bar {
+    backdrop-filter: blur(8px);
+  }
+
+  .search-card {
+    border-radius: 12px;
+  }
 }
 </style>

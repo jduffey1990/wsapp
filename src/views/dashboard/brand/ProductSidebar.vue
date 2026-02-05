@@ -39,7 +39,7 @@
     </v-card-text>
 
     <!-- Product List -->
-    <v-list v-else density="compact" class="pa-0">
+    <v-list v-else density="compact" class="product-list">
       <v-list-item
         v-for="product in products"
         :key="product.id"
@@ -461,10 +461,10 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, computed } from 'vue'
 import { useCompanyStore } from '@/store/company'
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
+import { inject, onMounted, ref } from 'vue'
 
 /* Stores */
 const companyStore = useCompanyStore()
@@ -682,17 +682,30 @@ onMounted(() => {
 <style scoped>
 .product-sidebar {
   height: calc(100vh - 280px);
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.18)) ;
+  border-radius: 16px;
   overflow-y: auto;
   position: sticky;
   top: 12px;
 }
 
+.product-list {
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.00) !important;
+  margin: 12px 5px;
+  border-radius: 16px;
+}
+
 .product-item {
   cursor: pointer;
-  transition: background-color 0.2s;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 12px 5px;
+  border-radius: 6px !important;
+  transition: all 0.2s ease;
 }
 
 .product-item:hover {
   background-color: rgba(0, 0, 0, 0.04);
+  transform: translateX(2px);
 }
 </style>
