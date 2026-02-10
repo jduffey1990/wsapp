@@ -22,7 +22,7 @@
       <!-- <v-tab to="/dashboard/team">
         Team
       </v-tab> -->
-      <v-tab to="/dashboard/retailers">
+      <v-tab to="/dashboard/retailers" data-testid="nav-retailers">
         Retailers
       </v-tab>
       <!-- <v-tab to="/dashboard/conversations">

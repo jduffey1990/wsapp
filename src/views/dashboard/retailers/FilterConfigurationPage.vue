@@ -30,9 +30,11 @@
       <div class="footer-content">
         <v-btn
           v-if="!hasAnyFilters"
+          data-testid="show-results-button"
           color="primary"
           size="large"
           :loading="loading"
+          :disabled="fetchingCount || loading"
           @click="handleShowResults"
         >
           Show All Retailers
@@ -40,10 +42,12 @@
         
         <v-btn
           v-else
+          data-testid="show-results-button"
           color="primary"
           size="large"
           :loading="fetchingCount || loading"
           @click="handleShowResults"
+          :disabled="fetchingCount || loading"
         >
           <template v-if="fetchingCount">
             Counting...
@@ -98,7 +102,7 @@ watch(localFilters, () => {
     // Debounce the count fetch
     clearTimeout(countTimeout);
     countTimeout = setTimeout(() => {
-      retailersStore.fetchRetailerCount();
+      retailersStore.fetchRetailerPreviewCount();
     }, 500);
   } else {
     retailersStore.matchingRetailerCount = 0;

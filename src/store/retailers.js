@@ -1,14 +1,12 @@
 // src/store/retailers.js
-
 import { defineStore } from 'pinia';
+import { useUserStore } from './user';
 
 export const useRetailersStore = defineStore('retailers', {
   state: () => ({
-    // Data
     retailers: [],
     currentRetailer: null,
     filterOptions: {
-    //   regions: [],
       states: [],
       retailerTypes: [],
       pricePoints: [],
@@ -18,7 +16,6 @@ export const useRetailersStore = defineStore('retailers', {
       paymentTerms: []
     },
     
-    // Active filters
     filters: {
       region: [],
       state: [],
@@ -45,7 +42,6 @@ export const useRetailersStore = defineStore('retailers', {
       dropshipEnabled: null,
     },
     
-    // Search & pagination
     searchQuery: '',
     pagination: {
       page: 1,
@@ -56,14 +52,12 @@ export const useRetailersStore = defineStore('retailers', {
     sortBy: 'businessName',
     sortOrder: 'asc',
     
-    // UI state
     loading: false,
     filterOptionsLoading: false,
     error: null,
     
-    // ✨ NEW: Filter configuration state
-    filtersConfigured: localStorage.getItem('retailer-filters-configured') === 'true',
-    activeFilterCategories: JSON.parse(localStorage.getItem('active-filter-categories') || '[]'),
+    filtersConfigured: false,
+    activeFilterCategories: [],
     matchingRetailerCount: 0,
     fetchingCount: false,
   }),
@@ -82,25 +76,145 @@ export const useRetailersStore = defineStore('retailers', {
         if (Array.isArray(value) && value.length > 0) count++;
         else if (value !== null && value !== undefined) count++;
       });
-      if (state.searchQuery) count++;
       return count;
-    }
+    },
   },
 
   actions: {
-    /**
-     * Fetch retailers with current filters
-     */
+    // ============== FILTER API METHODS ==============
+    
+    hydrateFilters(incoming = {}) {
+      Object.keys(this.filters).forEach(key => {
+        if (incoming[key] !== undefined) {
+          this.filters[key] = incoming[key];
+        }
+      });
+    },
+    
+    async fetchFilters() {
+      const userStore = useUserStore();
+      const userId = userStore.user?.id;
+      if (!userId) return;
+
+      try {
+        const response = await this.$usersApi.get(`/users/${userId}/filters`);
+        const { configured, activeCategories, filters } = response.data;
+        
+        this.filtersConfigured = configured;
+        this.activeFilterCategories = activeCategories;
+        this.hydrateFilters(filters);
+        
+        localStorage.setItem(`user-filters-${userId}`, JSON.stringify({
+          configured, activeCategories, filters
+        }));
+      } catch (error) {
+        console.error('Error fetching filters:', error);
+        const cached = localStorage.getItem(`user-filters-${userId}`);
+        if (cached) {
+          const data = JSON.parse(cached);
+          this.filtersConfigured = data.configured || false;
+          this.activeFilterCategories = data.activeCategories || [];
+          this.hydrateFilters(data.filters);
+        }
+      }
+    },
+
+    async saveFilters() {
+      const userStore = useUserStore();
+      const userId = userStore.user?.id;
+      if (!userId) throw new Error('No user ID');
+
+      try {
+        const response = await this.$usersApi.put(`/users/${userId}/filters`, {
+          configured: this.filtersConfigured,
+          activeCategories: this.activeFilterCategories,
+          filters: this.filters
+        });
+        
+        const { configured, activeCategories, filters } = response.data;
+        this.filtersConfigured = configured;
+        this.activeFilterCategories = activeCategories;
+        this.hydrateFilters(filters);
+        
+        localStorage.setItem(`user-filters-${userId}`, JSON.stringify({
+          configured, activeCategories, filters
+        }));
+      } catch (error) {
+        console.error('Error saving filters:', error);
+        throw error;
+      }
+    },
+
+    async setFiltersConfigured(value) {
+      this.filtersConfigured = value;
+      if (value) this.updateActiveFilterCategories();
+      await this.saveFilters();
+    },
+
+    async resetFilterConfiguration() {
+      const userStore = useUserStore();
+      const userId = userStore.user?.id;
+      if (!userId) throw new Error('No user ID');
+
+      try {
+        const response = await this.$usersApi.patch(`/users/${userId}/filters/reset`);
+        const { configured, activeCategories, filters } = response.data;
+        
+        this.filtersConfigured = configured;
+        this.activeFilterCategories = activeCategories;
+        this.hydrateFilters(filters);
+        
+        localStorage.setItem(`user-filters-${userId}`, JSON.stringify({
+          configured, activeCategories, filters
+        }));
+      } catch (error) {
+        console.error('Error resetting filters:', error);
+        throw error;
+      }
+    },
+
+    updateActiveFilterCategories() {
+      const active = [];
+      
+      if (this.filters.state?.length > 0 || this.filters.city?.length > 0) {
+        active.push('location');
+      }
+      if (this.filters.retailerType?.length > 0 || this.filters.minLocations || this.filters.maxLocations) {
+        active.push('retailerType');
+      }
+      if (this.filters.pricePoint?.length > 0) {
+        active.push('pricePoint');
+      }
+      if (this.filters.targetGender?.length > 0 || this.filters.targetAgeGroup?.length > 0 || this.filters.minRating) {
+        active.push('demographics');
+      }
+      if (this.filters.categories?.length > 0 || this.filters.minMSRP || this.filters.maxMSRP) {
+        active.push('productCategories');
+      }
+      if (this.filters.aesthetics?.length > 0 || this.filters.seasonality?.length > 0) {
+        active.push('aesthetic');
+      }
+      if (this.filters.minRevenue || this.filters.maxRevenue) {
+        active.push('financial');
+      }
+      if (this.filters.otbStrategy?.length > 0 || this.filters.minOrderSize || this.filters.maxOrderSize || this.filters.paymentTerms?.length > 0) {
+        active.push('buyingTerms');
+      }
+      if (this.filters.ediRequired !== null || this.filters.dropshipEnabled !== null) {
+        active.push('operations');
+      }
+      
+      this.activeFilterCategories = active;
+    },
+
+    // ============== YOUR EXISTING METHODS ==============
+    
     async fetchRetailers(resetPage = false) {
       this.loading = true;
       this.error = null;
-      
-      if (resetPage) {
-        this.pagination.page = 1;
-      }
+      if (resetPage) this.pagination.page = 1;
 
       try {
-        // Build query parameters
         const params = {
           page: this.pagination.page,
           limit: this.pagination.limit,
@@ -108,12 +222,8 @@ export const useRetailersStore = defineStore('retailers', {
           sortOrder: this.sortOrder,
         };
 
-        // Add search
-        if (this.searchQuery) {
-          params.search = this.searchQuery;
-        }
+        if (this.searchQuery) params.search = this.searchQuery;
 
-        // Add all active filters
         Object.keys(this.filters).forEach(key => {
           const value = this.filters[key];
           if (Array.isArray(value) && value.length > 0) {
@@ -124,10 +234,8 @@ export const useRetailersStore = defineStore('retailers', {
         });
 
         const response = await this.$companiesApi.get('/retailers', { params });
-        
         this.retailers = response.data.retailers;
         this.pagination = response.data.pagination;
-
       } catch (error) {
         console.error('Error fetching retailers:', error);
         this.error = error.response?.data?.error || 'Failed to load retailers';
@@ -137,26 +245,90 @@ export const useRetailersStore = defineStore('retailers', {
       }
     },
 
-    /**
-     * Fetch filter options for dropdowns
-     */
     async fetchFilterOptions() {
       this.filterOptionsLoading = true;
       
-      try {
-        const response = await this.$companiesApi.get('/retailers/filter-options/all');
-        this.filterOptions = response.data;
-      } catch (error) {
-        console.error('Error fetching filter options:', error);
-        throw error;
-      } finally {
-        this.filterOptionsLoading = false;
-      }
+      this.filterOptions = {
+        aesthetics: [
+          'Athleisure',
+          'Boho',
+          'Classic',
+          'Contemporary',
+          'Edgy',
+          'Minimalist',
+          'Preppy',
+          'Romantic',
+          'Streetwear',
+          'Vintage'
+        ],
+        categories: [
+          'Accessories',
+          'Activewear',
+          'Basics',
+          'Denim',
+          'Handbags',
+          'Home Goods',
+          'Intimates',
+          'Jewelry',
+          'Outerwear',
+          'Shoes',
+          'Sleepwear',
+          'Swimwear'
+        ],
+        otbStrategies: [
+          'Forward Buy',
+          'In Season',
+          'Just In Time',
+          'Mixed',
+          'Prebook'
+        ],
+        paymentTerms: [
+          'COD',
+          'Credit Card',
+          'Net30',
+          'Net60',
+          'Net90',
+          'Prepay'
+        ],
+        pricePoints: [
+          'Luxury/Designer',
+          'Mass Market',
+          'Mid-Tier',
+          'Premium',
+          'Value/Discount'
+        ],
+        regions: [
+          'Midwest',
+          'Northeast',
+          'Pacific Northwest',
+          'Southeast',
+          'Southwest',
+          'West'
+        ],
+        retailerTypes: [
+          'Big-Box Discount',
+          'Boutique',
+          'Concept Store',
+          'Department Store',
+          'E-Commerce Only',
+          'Fashion Boutique',
+          'Lifestyle Store',
+          'Outdoor Recreation',
+          'Specialty Chain',
+          'Sporting Goods'
+        ],
+        states: [
+          'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+          'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+          'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+          'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+          'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+        ]
+      };
+      
+      this.filterOptionsLoading = false;
     },
 
-    /**
-     * Fetch single retailer by ID
-     */
     async fetchRetailer(id) {
       try {
         const response = await this.$companiesApi.get(`/retailers/${id}`);
@@ -168,17 +340,10 @@ export const useRetailersStore = defineStore('retailers', {
       }
     },
 
-    /**
-     * ✨ NEW: Fetch count of matching retailers (for button text)
-     */
-    async fetchRetailerCount() {
+    async fetchRetailerPreviewCount() {
       this.fetchingCount = true;
-      
       try {
-        // Build query parameters
         const params = {};
-        
-        // Add all active filters
         Object.keys(this.filters).forEach(key => {
           const value = this.filters[key];
           if (Array.isArray(value) && value.length > 0) {
@@ -188,14 +353,8 @@ export const useRetailersStore = defineStore('retailers', {
           }
         });
 
-        // TODO: Replace with actual API endpoint when backend is ready
-        // const response = await this.$companiesApi.get('/retailers/count', { params });
-        // this.matchingRetailerCount = response.data.count;
-        
-        // MOCK: Random count for now
-        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 300));
         this.matchingRetailerCount = Math.floor(Math.random() * 200) + 1;
-        
       } catch (error) {
         console.error('Error fetching retailer count:', error);
         this.matchingRetailerCount = 0;
@@ -204,50 +363,31 @@ export const useRetailersStore = defineStore('retailers', {
       }
     },
 
-    /**
-     * Update a single filter and refresh results
-     */
-    async updateFilter(filterName, value) {
-      this.filters[filterName] = value;
-      await this.fetchRetailers(true); // Reset to page 1
+    updateFilter(filterKey, value) {
+      this.filters[filterKey] = value;
     },
 
-    /**
-     * Update search and refresh
-     */
     async updateSearch(query) {
       this.searchQuery = query;
       await this.fetchRetailers(true);
     },
 
-    /**
-     * Go to specific page
-     */
     async goToPage(page) {
       this.pagination.page = page;
       await this.fetchRetailers();
     },
 
-    /**
-     * Change items per page
-     */
     async changeLimit(limit) {
       this.pagination.limit = limit;
       await this.fetchRetailers(true);
     },
 
-    /**
-     * Update sort
-     */
     async updateSort(sortBy, sortOrder = 'asc') {
       this.sortBy = sortBy;
       this.sortOrder = sortOrder;
       await this.fetchRetailers(true);
     },
 
-    /**
-     * Reset all filters
-     */
     async resetFilters() {
       this.filters = {
         region: [],
@@ -275,96 +415,10 @@ export const useRetailersStore = defineStore('retailers', {
         dropshipEnabled: null,
       };
       this.searchQuery = '';
+      await this.saveFilters();
       await this.fetchRetailers(true);
     },
 
-    /**
-     * ✨ NEW: Calculate which filter categories have active values
-     */
-    updateActiveFilterCategories() {
-      const active = [];
-      
-      // Location
-      if (this.filters.state?.length > 0 || this.filters.city?.length > 0) {
-        active.push('location');
-      }
-      
-      // Retailer Type
-      if (this.filters.retailerType?.length > 0 || 
-          this.filters.minLocations || this.filters.maxLocations) {
-        active.push('retailerType');
-      }
-      
-      // Price Point
-      if (this.filters.pricePoint?.length > 0) {
-        active.push('pricePoint');
-      }
-      
-      // Target Demographics
-      if (this.filters.targetGender?.length > 0 || 
-          this.filters.targetAgeGroup?.length > 0 || 
-          this.filters.minRating) {
-        active.push('demographics');
-      }
-      
-      // Product Categories
-      if (this.filters.categories?.length > 0 || 
-          this.filters.minMSRP || this.filters.maxMSRP) {
-        active.push('productCategories');
-      }
-      
-      // Aesthetic
-      if (this.filters.aesthetics?.length > 0 || 
-          this.filters.seasonality?.length > 0) {
-        active.push('aesthetic');
-      }
-      
-      // Financial
-      if (this.filters.minRevenue || this.filters.maxRevenue) {
-        active.push('financial');
-      }
-      
-      // Buying Terms
-      if (this.filters.otbStrategy?.length > 0 || 
-          this.filters.minOrderSize || this.filters.maxOrderSize || 
-          this.filters.paymentTerms?.length > 0) {
-        active.push('buyingTerms');
-      }
-      
-      // Operations
-      if (this.filters.ediRequired !== null || this.filters.dropshipEnabled !== null) {
-        active.push('operations');
-      }
-      
-      this.activeFilterCategories = active;
-      localStorage.setItem('active-filter-categories', JSON.stringify(active));
-    },
-
-    /**
-     * ✨ NEW: Mark filters as configured and save to localStorage
-     */
-    setFiltersConfigured(value) {
-      this.filtersConfigured = value;
-      localStorage.setItem('retailer-filters-configured', value.toString());
-      
-      if (value) {
-        this.updateActiveFilterCategories();
-      }
-    },
-
-    /**
-     * ✨ NEW: Reset filter configuration (return to filter configuration page)
-     */
-    resetFilterConfiguration() {
-      this.filtersConfigured = false;
-      this.activeFilterCategories = [];
-      localStorage.removeItem('retailer-filters-configured');
-      localStorage.removeItem('active-filter-categories');
-    },
-
-    /**
-     * Clear the store
-     */
     clearStore() {
       this.$reset();
     }

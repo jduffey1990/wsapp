@@ -10,7 +10,7 @@
   >
     <!-- Location Filters -->
     <v-expansion-panel v-if="shouldShowCategory('location')" value="location">
-      <v-expansion-panel-title>
+      <v-expansion-panel-title data-testid="filter-panel-location">
         <v-icon class="mr-2">mdi-map-marker</v-icon>
         Location
       </v-expansion-panel-title>
@@ -38,6 +38,7 @@
 
         <!-- State Selection -->
         <v-select
+          data-testid="filter-location-states"
           :model-value="localFilters.state"
           :items="filterOptions.states"
           label="States"
@@ -129,12 +130,13 @@
 
     <!-- Target Demographics -->
     <v-expansion-panel v-if="shouldShowCategory('demographics')" value="demographics">
-      <v-expansion-panel-title>
+      <v-expansion-panel-title data-testid="filter-panel-demographics">
         <v-icon class="mr-2">mdi-account-group</v-icon>
         Target Demographics
       </v-expansion-panel-title>
       <v-expansion-panel-text>
         <v-select
+          data-testid="filter-deomgraphics-gender"
           :model-value="localFilters.targetGender"
           :items="['Men', 'Women', 'Unisex']"
           label="Gender"
