@@ -41,6 +41,7 @@
         :filter-options="filterOptions"
         :multiple="true"
         :expanded-panels="expandedPanels"
+        :visible-categories="activeFilterCategories"
         @update-filter="handleFilterUpdate"
         @update:expanded-panels="handlePanelsUpdate"
       />

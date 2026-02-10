@@ -9,7 +9,7 @@
     @update:model-value="$emit('update:expandedPanels', $event)"
   >
     <!-- Location Filters -->
-    <v-expansion-panel value="location">
+    <v-expansion-panel v-if="shouldShowCategory('location')" value="location">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-map-marker</v-icon>
         Location
@@ -62,7 +62,7 @@
     </v-expansion-panel>
 
     <!-- Retailer Type Filters -->
-    <v-expansion-panel value="retailerType">
+    <v-expansion-panel v-if="shouldShowCategory('retailerType')" value="retailerType">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-store</v-icon>
         Retailer Type
@@ -106,7 +106,7 @@
     </v-expansion-panel>
 
     <!-- Price Point -->
-    <v-expansion-panel value="pricePoint">
+    <v-expansion-panel v-if="shouldShowCategory('pricePoint')" value="pricePoint">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-currency-usd</v-icon>
         Price Point
@@ -128,7 +128,7 @@
     </v-expansion-panel>
 
     <!-- Target Demographics -->
-    <v-expansion-panel value="demographics">
+    <v-expansion-panel v-if="shouldShowCategory('demographics')" value="demographics">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-account-group</v-icon>
         Target Demographics
@@ -177,7 +177,7 @@
     </v-expansion-panel>
 
     <!-- Product Categories -->
-    <v-expansion-panel value="productCategories">
+    <v-expansion-panel v-if="shouldShowCategory('productCategories')" value="productCategories">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-hanger</v-icon>
         Product Categories
@@ -223,7 +223,7 @@
     </v-expansion-panel>
 
     <!-- Aesthetic -->
-    <v-expansion-panel value="aesthetic">
+    <v-expansion-panel v-if="shouldShowCategory('aesthetic')" value="aesthetic">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-palette</v-icon>
         Aesthetic
@@ -259,7 +259,7 @@
     </v-expansion-panel>
 
     <!-- Financial -->
-    <v-expansion-panel value="financial">
+    <v-expansion-panel v-if="shouldShowCategory('financial')" value="financial">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-chart-line</v-icon>
         Financial
@@ -291,7 +291,7 @@
     </v-expansion-panel>
 
     <!-- Buying Terms -->
-    <v-expansion-panel value="buyingTerms">
+    <v-expansion-panel v-if="shouldShowCategory('buyingTerms')" value="buyingTerms">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-handshake</v-icon>
         Buying Terms
@@ -351,7 +351,7 @@
     </v-expansion-panel>
 
     <!-- Operations -->
-    <v-expansion-panel value="operations">
+    <v-expansion-panel v-if="shouldShowCategory('operations')" value="operations">
       <v-expansion-panel-title>
         <v-icon class="mr-2">mdi-cog</v-icon>
         Operations
@@ -397,6 +397,10 @@ const props = defineProps({
   expandedPanels: {
     type: Array,
     default: () => []
+  },
+  visibleCategories: {
+    type: Array,
+    default: () => [] // Empty array means show all
   }
 });
 
@@ -441,6 +445,16 @@ const toggleRegion = (region) => {
 // Update filter (emit to parent)
 const updateFilter = (filterKey, value) => {
   emit('update-filter', filterKey, value);
+};
+
+// Check if a category should be visible
+const shouldShowCategory = (categoryValue) => {
+  // If no visible categories specified, show all
+  if (!props.visibleCategories || props.visibleCategories.length === 0) {
+    return true;
+  }
+  // Otherwise only show if in the visible list
+  return props.visibleCategories.includes(categoryValue);
 };
 </script>
 
