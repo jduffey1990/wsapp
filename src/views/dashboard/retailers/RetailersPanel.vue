@@ -368,10 +368,11 @@ const handleConversationStarted = (conversationId) => {
 // Mount
 onMounted(async () => {
   try {
-    // Load filter options
     await retailersStore.fetchFilterOptions();
-    
-    // Only fetch retailers if filters are already configured
+
+    // 🔑 hydrate from DB / cache
+    await retailersStore.fetchFilters();
+
     if (filtersConfigured.value) {
       await retailersStore.fetchRetailers();
     }
@@ -380,6 +381,7 @@ onMounted(async () => {
     toast?.show({ message: 'Failed to initialize', error: true });
   }
 });
+
 </script>
 
 <style scoped>
